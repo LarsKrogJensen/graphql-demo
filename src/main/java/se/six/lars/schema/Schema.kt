@@ -404,13 +404,11 @@ private val listingSearchQueryPaged = graphqlField<Connection<SearchItem>>("list
     argument<String>("after")
     dataFetcher = { env ->
         val context = env.context as ApiRequestContext
-        val promise = CompletableFuture<Connection<SearchItem>>()
-        context.searchController.searchListings(env.getArgument("searchQuery"), context.user).thenAccept { it: List<SearchItem>? ->
-            SimpleListConnection(it).get(env).thenAccept {
-                promise.complete(it)
-            }
-        }
-        promise
+        context.searchController
+                .searchListings(env.getArgument("searchQuery"), context.user)
+                .thenApply {
+                    SimpleListConnection(it).get(env)
+                }
     }
 }
 
