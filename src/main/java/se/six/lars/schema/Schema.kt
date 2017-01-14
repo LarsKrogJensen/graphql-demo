@@ -1,8 +1,10 @@
 package se.six.lars.schema
 
-import ch.qos.logback.core.joran.conditional.ElseAction
 import graphql.Scalars.GraphQLInt
 import graphql.Scalars.GraphQLString
+import graphql.relay.Connection
+import graphql.relay.Relay
+import graphql.relay.SimpleListConnection
 import graphql.schema.GraphQLInputObjectField
 import graphql.schema.GraphQLInputObjectType
 import graphql.schema.GraphQLTypeReference
@@ -10,6 +12,7 @@ import se.six.lars.types.*
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
+private val relay = Relay()
 /**
  * Defines the Sector QL type
  */
@@ -205,7 +208,6 @@ private val organizationType = graphqlType("Organization") {
 }
 
 
-
 private val listingType = graphqlType("Listing") {
     field<String>("id") {
         type = graphqlNonNull(GraphQLString)
@@ -382,6 +384,37 @@ private val listingSearchQuery = graphqlField<List<SearchItem>>("listingSearch")
     }
 }
 
+//var nodeInterface = relay.nodeInterface {
+//    val resolvedGlobalId = relay.fromGlobalId(it as String)
+//    //TODO: implement
+//    null
+//}
+
+var searchEdgeType = relay.edgeType("SearchItem", searchItemType, null, listOf())
+var searchConnectionType = relay.connectionType("SearchItem", searchEdgeType, listOf())
+
+private val listingSearchQueryPaged = graphqlField<Connection<SearchItem>>("listingSearchPaged") {
+    type = searchConnectionType
+    argument<String>("searchQuery") {
+        type = graphqlNonNull(GraphQLString)
+    }
+    argument<Int>("first")
+    argument<Int>("last")
+    argument<String>("before")
+    argument<String>("after")
+    dataFetcher = { env ->
+        val context = env.context as ApiRequestContext
+        val promise = CompletableFuture<Connection<SearchItem>>()
+        context.searchController.searchListings(env.getArgument("searchQuery"), context.user).thenAccept { it: List<SearchItem>? ->
+            SimpleListConnection(it).get(env).thenAccept {
+                promise.complete(it)
+            }
+        }
+        promise
+    }
+}
+
+
 // Mutations
 private val personInput = GraphQLInputObjectType.newInputObject()
         .name("PersonInput")
@@ -428,6 +461,7 @@ val schema = graphqlSchema {
         field(organizationQuery)
         field(personsQuery)
         field(listingSearchQuery)
+        field(listingSearchQueryPaged)
     }
     mutationType = graphqlType("MutationType") {
         field(addPersonMutation)

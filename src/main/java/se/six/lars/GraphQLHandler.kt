@@ -11,7 +11,8 @@ import javax.inject.Inject
 
 class GraphQLHandler
 @Inject
-constructor(private val apiController: IApiController, private val searchController: ISearchController) : Handler<RoutingContext> {
+constructor(private val apiController: IApiController,
+            private val searchController: ISearchController) : Handler<RoutingContext> {
 
 
     override fun handle(routingContext: RoutingContext) {

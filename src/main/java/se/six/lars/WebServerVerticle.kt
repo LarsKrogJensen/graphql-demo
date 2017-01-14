@@ -17,6 +17,7 @@ import io.vertx.rx.java.RxHelper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import se.six.lars.chat.ChatSystemHandler
+import se.six.lars.kutil.loggerFor
 import se.six.lars.kutil.router
 
 import javax.inject.Inject
@@ -29,8 +30,7 @@ class WebServerVerticle
 constructor(private val _graphQLHandler: GraphQLHandler,
             private val _chatHandler: ChatSystemHandler,
             private val _authProvider: AuthProvider) : AbstractVerticle() {
-    private val _log = LoggerFactory.getLogger(WebServerVerticle::class.java)
-
+    private val _log = loggerFor<WebServerVerticle>()
 
     @Throws(Exception::class)
     override fun start(startFuture: Future<Void>) {

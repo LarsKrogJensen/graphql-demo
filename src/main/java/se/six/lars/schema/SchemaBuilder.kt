@@ -2,6 +2,7 @@ package se.six.lars.schema
 
 import graphql.Scalars.*
 import graphql.schema.*
+import se.six.lars.schema.ScalarTypes.GraphQLDate
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
@@ -18,26 +19,7 @@ abstract class TypeBuilderBase(name: String) : BuilderBase(name) {
 
     inline fun <reified T : Any> field(name: String, block: FieldBuilder<T>.() -> Unit): Unit {
         val fieldBuilder = FieldBuilder<T>(name)
-        val type: KClass<T> = T::class
-
-
-        if (String::class == type) {
-            fieldBuilder.type = GraphQLString
-        } else if (Date::class == type) {
-            fieldBuilder.type = ScalarTypes.GraphQLDate
-        } else if (Int::class == type) {
-            fieldBuilder.type = GraphQLInt
-        } else if (Double::class == type) {
-            fieldBuilder.type = GraphQLFloat
-        } else if (Boolean::class == type) {
-            fieldBuilder.type = GraphQLBoolean
-        } else if (Float::class == type) {
-            fieldBuilder.type = GraphQLFloat
-        } else if (Long::class == type) {
-            fieldBuilder.type = GraphQLLong
-        }
-
-
+        fieldBuilder.type = typeResolve(T::class)
         fieldBuilder.block()
         fields += fieldBuilder.build()
     }
@@ -61,9 +43,15 @@ class FieldBuilder<T>(name: String) : BuilderBase(name) {
     var deprecationReason: String? = null
 
 
-    fun <TArg> argument(name: String, block: ArgumentBuilder<TArg>.() -> Unit): Unit {
+    inline fun <reified TArg : Any> argument(name: String, block: ArgumentBuilder<TArg>.() -> Unit): Unit {
         val argBuilder = ArgumentBuilder<TArg>(name)
         argBuilder.block()
+        arguments += argBuilder.build()
+    }
+
+    inline fun <reified TArg : Any> argument(name: String): Unit {
+        val argBuilder = ArgumentBuilder<TArg>(name)
+        argBuilder.type = typeResolve(TArg::class)
         arguments += argBuilder.build()
     }
 
@@ -97,6 +85,17 @@ class SchemaBuilder {
                 .mutation(mutationType)
                 .build()
     }
+}
+
+fun <T : Any> typeResolve(type: KClass<T>) = when (type) {
+    String::class  -> GraphQLString
+    Date::class    -> GraphQLDate
+    Int::class     -> GraphQLInt
+    Long::class    -> GraphQLLong
+    Float::class   -> GraphQLFloat
+    Double::class  -> GraphQLFloat
+    Boolean::class -> GraphQLBoolean
+    else           -> GraphQLString
 }
 
 fun graphqlType(name: String, block: TypeBuilder.() -> Unit) = TypeBuilder(name).apply { block() }.build()
