@@ -403,12 +403,13 @@ private val listingSearchQueryPaged = graphqlField<Connection<SearchItem>>("list
     argument<String>("before")
     argument<String>("after")
     dataFetcher = { env ->
-        val context = env.context as ApiRequestContext
-        context.searchController
-                .searchListings(env.getArgument("searchQuery"), context.user)
-                .thenApply {
-                    SimpleListConnection(it).get(env)
-                }
+        with(env.context as ApiRequestContext) {
+            searchController
+                    .searchListings(env.getArgument("searchQuery"), user)
+                    .thenApply { searchResult ->
+                        SimpleListConnection(searchResult).get(env)
+                    }
+        }
     }
 }
 
