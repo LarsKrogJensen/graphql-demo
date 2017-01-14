@@ -1,0 +1,36 @@
+
+
+query AllPersons {
+  persons {
+    socialSecurityId
+    firstName
+    lastName
+  }
+}
+
+mutation AddPerson($person: PersonInput!) {
+  addPerson(person: $person) {
+    socialSecurityId
+    firstName
+    lastName
+  }
+}
+
+mutation RemovePerson($id: Int!) {
+  removePerson(socialSecurityId: $id) {
+    socialSecurityId
+    firstName
+    lastName
+  }
+}
+
+
+--- vars:
+{
+  "person": {
+    "socialSecurityId": 23,
+    "firstName": "gurran",
+    "lastName": "spindeslsson"
+  },
+  "id": 23
+}
