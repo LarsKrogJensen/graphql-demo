@@ -1,12 +1,8 @@
 package se.lars
 
 
-import graphql.GraphQL
 import io.vertx.ext.web.RoutingContext
-import se.lars.kutil.cast
 import se.lars.kutil.jsonObject
-import se.lars.schema.ApiRequestContext
-import se.lars.schema.schema
 import javax.inject.Inject
 
 class GraphQLHandlerOverWS
@@ -23,10 +19,16 @@ constructor(apiController: IApiController,
         ws.handler { buffer ->
             // received a gql query execute async and supply
             // a async reponse callback handler
-            executeGraphQL(buffer.toJsonObject(), user) {
-                // we have a response for the query
-                ws.writeFinalTextFrame(it.encode())
+            try {
+                executeGraphQL(buffer.toJsonObject(), user) {
+                    // we have a response for the query
+                    ws.writeFinalTextFrame(it.encode())
+                }
+            } catch (e: Exception) {
+               ws.writeFinalTextFrame(jsonObject("errors" to e).encode())
             }
+        }.exceptionHandler {
+
         }
     }
 }

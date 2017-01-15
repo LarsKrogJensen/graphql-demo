@@ -16,6 +16,7 @@ import io.vertx.ext.web.sstore.LocalSessionStore
 import io.vertx.rx.java.RxHelper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import se.lars.accesslog.AccessLogHandler
 import se.lars.chat.ChatSystemHandler
 import se.lars.kutil.loggerFor
 import se.lars.kutil.router
@@ -48,13 +49,14 @@ constructor(private val _graphQLHandler: GraphQLHandler,
 
         val router = router(vertx) {
             route().handler(BodyHandler.create())
+            route().handler(AccessLogHandler.create("%r %s \"%{Content-Type}o\" %D %T %B"))
             route().handler(CookieHandler.create())
             route().handler(SessionHandler.create(LocalSessionStore.create(vertx)))
             route().handler(UserSessionHandler.create(_authProvider))
-            route().handler(BasicAuthHandler.create(_authProvider))
+            route().handler(HybridAuthHandler.create(_authProvider))
             route("/chat").handler(_chatHandler)
-            route("/graphql").produces("application/json").handler(_graphQLHandler)
-            route("/graphqlws").produces("application/json").handler(_graphQLHandlerWs)
+            route("/graphql").handler(_graphQLHandler)
+            route("/graphqlws").handler(_graphQLHandlerWs)
 
             route("/*").handler(StaticHandler.create())
         }

@@ -11,11 +11,12 @@ constructor(apiController: IApiController,
             searchController: ISearchController) : GraphQLHandlerBase(apiController, searchController) {
 
     override fun handle(routingContext: RoutingContext) {
-
         // request response handler
         // execute with async callback handler that will respond to client
         executeGraphQL(routingContext.bodyAsJson, routingContext.user().cast<ApiUser>()) {
-            routingContext.response().end(it.encode())
+            routingContext.response()
+                    .putHeader("Content-Type", "application/json")
+                    .end(it.encode())
         }
     }
 }
