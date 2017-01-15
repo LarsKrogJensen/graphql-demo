@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>se.six.lars</groupId>
+  <groupId>se.lars</groupId>
   <artifactId>vertx.core.sample1</artifactId>
   <version>1.0-SNAPSHOT</version>
 
@@ -243,7 +243,7 @@
       <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
       <!--<manifestEntries>-->
       <!--<Main-Class>io.vertx.core.Launcher</Main-Class>-->
-      <!--<Main-Verticle>se.six.lars.BootstrapVerticle</Main-Verticle>-->
+      <!--<Main-Verticle>se.lars.BootstrapVerticle</Main-Verticle>-->
       <!--</manifestEntries>-->
       <!--</transformer>-->
       <!--</transformers>-->
@@ -265,7 +265,7 @@
           <appendAssemblyId>false</appendAssemblyId>
           <archive>
             <manifest>
-              <mainClass>se.six.lars.Main</mainClass>
+              <mainClass>se.lars.Main</mainClass>
             </manifest>
           </archive>
         </configuration>

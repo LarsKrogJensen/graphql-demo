@@ -1,4 +1,4 @@
-import se.six.lars.OtherService
+import se.lars.OtherService
 import spock.lang.*
 
 class MyFirstSpecification extends Specification {

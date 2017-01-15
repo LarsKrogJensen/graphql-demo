@@ -3,8 +3,8 @@ import org.junit.Test;
 import org.mockito.*;
 import org.mockito.Mock;
 import rx.observers.TestSubscriber;
-import se.six.lars.IMyService;
-import se.six.lars.OtherService;
+import se.lars.IMyService;
+import se.lars.OtherService;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;

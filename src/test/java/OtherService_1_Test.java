@@ -1,19 +1,16 @@
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 import rx.observers.TestSubscriber;
-import se.six.lars.IMyService;
-import se.six.lars.OtherService;
+import se.lars.IMyService;
+import se.lars.OtherService;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OtherService_1_Test
