@@ -1,6 +1,7 @@
 package se.lars.schema
 
 import graphql.Scalars.*
+import graphql.relay.Relay
 import graphql.schema.*
 import se.lars.schema.ScalarTypes.GraphQLDate
 import java.util.*
@@ -79,9 +80,23 @@ class InterfaceBuilder(name: String) : TypeBuilderBase(name) {
     fun build() = GraphQLInterfaceType(name, description, fields, typeResolver)
 }
 
-class TypeBuilder(name: String) : TypeBuilderBase(name) {
+class ObjectTypeBuilder(name: String) : TypeBuilderBase(name) {
     private val interfaces: MutableList<GraphQLInterfaceType> = mutableListOf()
     fun build() = GraphQLObjectType(name, description, fields, interfaces)
+}
+
+class ConnectionTypeBuilder(name: String) : BuilderBase(name) {
+    var edgeType: GraphQLObjectType by Delegates.notNull<GraphQLObjectType>()
+    //var nodeInterface: GraphQLInterfaceType? = null
+
+    fun build() = Relay().connectionType(name, edgeType, listOf())
+}
+
+class EdgeTypeBuilder(name: String) : TypeBuilderBase(name) {
+    var nodeType: GraphQLObjectType by Delegates.notNull<GraphQLObjectType>()
+    var nodeInterface: GraphQLInterfaceType? = null
+
+    fun build() = Relay().edgeType(name, nodeType, nodeInterface, fields)
 }
 
 class InputTypeBuilder(name: String) : BuilderBase(name) {
@@ -124,7 +139,7 @@ fun <T : Any> typeResolve(type: KClass<T>) = when (type) {
     else           -> GraphQLString
 }!!
 
-fun graphqlType(name: String, block: TypeBuilder.() -> Unit) = TypeBuilder(name).apply { block() }.build()
+fun graphqlType(name: String, block: ObjectTypeBuilder.() -> Unit) = ObjectTypeBuilder(name).apply { block() }.build()
 
 fun graphqlInputType(name: String, block: InputTypeBuilder.() -> Unit) = InputTypeBuilder(name).apply { block() }.build()
 
@@ -132,9 +147,17 @@ fun <T> graphqlField(name: String, block: FieldBuilder<T>.() -> Unit) = FieldBui
 
 fun graphqlSchema(block: SchemaBuilder.() -> Unit) = SchemaBuilder().apply { block() }.build()
 
+fun relayConnectionType(name: String, block: ConnectionTypeBuilder.() -> Unit) = ConnectionTypeBuilder(name).apply { block() }.build()
+
+fun relayEdgeType(name: String, block: EdgeTypeBuilder.() -> Unit) = EdgeTypeBuilder(name).apply { block() }.build()
+
 fun graphqlNonNull(wrapped: GraphQLType) = GraphQLNonNull(wrapped)
 
 fun graphqlList(wrapped: GraphQLType) = GraphQLList(wrapped)
+
+
+
+
 
 fun <T> succeeded(value: T) = CompletableFuture.completedFuture(value)!!
 

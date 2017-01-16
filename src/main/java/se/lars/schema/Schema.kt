@@ -375,21 +375,16 @@ private val listingSearchQuery = graphqlField<List<SearchItem>>("listingSearch")
     dataFetcher = { env ->
         val context = env.context as ApiRequestContext
         context.searchController.searchListings(env.getArgument("searchQuery"), context.user)
-        //context.searchController.searchListings("abb", context.user)
     }
 }
 
-//var nodeInterface = relay.nodeInterface {
-//    val resolvedGlobalId = relay.fromGlobalId(it as String)
-//    //TODO: implement
-//    null
-//}
-
-var searchEdgeType = relay.edgeType("SearchItem", searchItemType, null, listOf())
-var searchConnectionType = relay.connectionType("SearchItem", searchEdgeType, listOf())
 
 private val listingSearchQueryPaged = graphqlField<Connection<SearchItem>>("listingSearchPaged") {
-    type = searchConnectionType
+    type = relayConnectionType("Search") {
+        edgeType = relayEdgeType("Search") {
+            nodeType = searchItemType
+        }
+    }
     argument<String>("searchQuery") {
         type = graphqlNonNull(GraphQLString)
     }
