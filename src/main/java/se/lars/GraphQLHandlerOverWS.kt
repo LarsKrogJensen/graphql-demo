@@ -12,6 +12,8 @@ constructor(apiController: IApiController,
 
     override fun handle(routingContext: RoutingContext) {
         val user = routingContext.user() as ApiUser
+
+        // Upgrade request to WebSocket
         val ws = routingContext.request().upgrade()
 
         // configure websocket async callback handler that is
