@@ -11,7 +11,6 @@ import se.lars.types.*
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
-private val relay = Relay()
 /**
  * Defines the Sector QL type
  */
@@ -282,35 +281,23 @@ private val listingType = graphqlType("Listing") {
 
 private val searchItemType = graphqlType("SearchItem") {
     field<String>("id") {
-        dataFetcher = { env ->
-            val item = env.source as SearchItem
-            succeeded(item.id)
-        }
+        dataFetcher = { succeeded(it.source.cast<SearchItem>().id) }
     }
     field<Float>("score") {
-        dataFetcher = { env ->
-            val item = env.source as SearchItem
-            succeeded(item.score)
-        }
+        dataFetcher = { succeeded(it.source.cast<SearchItem>().score) }
     }
     field<String>("name") {
-        dataFetcher = { env ->
-            val item = env.source as SearchItem
-            succeeded(item.name)
-        }
+        dataFetcher = { succeeded(it.source.cast<SearchItem>().name) }
     }
     field<String>("longName") {
-        dataFetcher = { env ->
-            val item = env.source as SearchItem
-            succeeded(item.longName)
-        }
+        dataFetcher = { succeeded(it.source.cast<SearchItem>().longName) }
     }
     field<Listing>("listing") {
         type = listingType
         dataFetcher = { env ->
-            val item = env.source as SearchItem
-            val context = env.context as ApiRequestContext
-            context.apiController.listing(item.id, context.user)
+            with(env.context.cast<ApiRequestContext>()) {
+                apiController.listing(env.source.cast<SearchItem>().id, user)
+            }
         }
     }
 }
@@ -378,7 +365,6 @@ private val listingSearchQuery = graphqlField<List<SearchItem>>("listingSearch")
     }
 }
 
-
 private val listingSearchQueryPaged = graphqlField<Connection<SearchItem>>("listingSearchPaged") {
     type = relayConnectionType("Search") {
         edgeType = relayEdgeType("Search") {
@@ -402,7 +388,6 @@ private val listingSearchQueryPaged = graphqlField<Connection<SearchItem>>("list
         }
     }
 }
-
 
 // Mutations
 private val personInputType = graphqlInputType("PersonInput") {
