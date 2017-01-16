@@ -27,18 +27,18 @@ class AccessLogHandlerImpl(pattern: String) : AccessLogHandler {
         context.addBodyEndHandler {
             log(context, startTSmillis)
         }
-        val let = File("").let {
-
-            it.absolutePath
-        }
-        HashMap<String, String>().apply {
-            put("","")
-        }
-        mutableMapOf(1 to "", 2 to "")
-
-        var pair = 1 to "a"
-
-        val readText = URL("http://six.se").readText()
+//        val let = File("").let {
+//
+//            it.absolutePath
+//        }
+//        HashMap<String, String>().apply {
+//            put("","")
+//        }
+//        mutableMapOf(1 to "", 2 to "")
+//
+//        var pair = 1 to "a"
+//
+//        val readText = URL("http://six.se").readText()
 
         context.next()
     }
