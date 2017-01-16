@@ -1,6 +1,7 @@
 package se.lars
 
 
+import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 import se.lars.kutil.cast
 import javax.inject.Inject
@@ -12,8 +13,9 @@ constructor(apiController: IApiController,
 
     override fun handle(routingContext: RoutingContext) {
         // request response handler
+
         // execute with async callback handler that will respond to client
-        executeGraphQL(routingContext.bodyAsJson, routingContext.user().cast<ApiUser>()) {
+        executeGraphQL(routingContext.body.toString(), routingContext.user().cast<ApiUser>()) {
             routingContext.response()
                     .putHeader("Content-Type", "application/json")
                     .end(it.encode())

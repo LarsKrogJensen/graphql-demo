@@ -20,7 +20,7 @@ constructor(apiController: IApiController,
             // received a gql query execute async and supply
             // a async reponse callback handler
             try {
-                executeGraphQL(buffer.toJsonObject(), user) {
+                executeGraphQL(buffer.toString(), user) {
                     // we have a response for the query
                     ws.writeFinalTextFrame(it.encode())
                 }

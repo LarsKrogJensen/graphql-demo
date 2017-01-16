@@ -58,8 +58,8 @@
   -webkit-align-items: center;
       -ms-align-items: center;
           align-items: center;
-  background: -webkit-linear-gradient(#11110F, #11110F);
-  background:         linear-gradient(#11110F, #11110F);
+  background: -webkit-linear-gradient(#f7f7f7, #e2e2e2);
+  background:         linear-gradient(#f7f7f7, #e2e2e2);
   border-bottom: 1px solid #d0d0d0;
   cursor: default;
   display: -webkit-flex;

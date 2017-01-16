@@ -1,6 +1,7 @@
 package se.lars
 
 import graphql.GraphQL
+import graphql.InvalidSyntaxError
 import io.vertx.core.Handler
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
@@ -11,7 +12,19 @@ import se.lars.schema.schema
 abstract class GraphQLHandlerBase(private val apiController: IApiController,
                                   private val searchController: ISearchController) : Handler<RoutingContext> {
 
-    protected fun executeGraphQL(json: JsonObject, user: ApiUser, handler: (JsonObject) -> Unit): Unit {
+    protected fun executeGraphQL(jsonText: String, user: ApiUser, handler: (JsonObject) -> Unit): Unit {
+
+        // be a bit more forgiving
+        val body = jsonText.replace('\n', ' ').replace('\t', ' ')
+
+        // Validate json input
+        val json: JsonObject = try {
+            JsonObject(body)
+        } catch(e: Exception) {
+            handler(jsonObject("errors" to "Invalid Json format"))
+            return
+        }
+
         val graphQL = GraphQL(schema)
         val variables = json.getJsonObject("variables")?.map ?: emptyMap<String, Any>()
         val query = json.getString("query")
