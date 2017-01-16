@@ -1,6 +1,7 @@
 package se.lars
 
 import io.vertx.core.*
+import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.json.JsonObject
@@ -46,10 +47,17 @@ constructor(private val _graphQLHandler: GraphQLHandler,
              })*/
         }
 
+        // configure cross domain access
+        val corsHandler = with(CorsHandler.create("*")) {
+            allowCredentials(true)
+            allowedMethod(HttpMethod.POST)
+            allowedHeaders(setOf("content-type","authorization"))
+        }
 
         val router = router(vertx) {
-            route().handler(BodyHandler.create())
             route().handler(AccessLogHandler.create("%r %s \"%{Content-Type}o\" %D %T %B"))
+            route().handler(corsHandler)
+            route().handler(BodyHandler.create())
             route().handler(CookieHandler.create())
             route().handler(SessionHandler.create(LocalSessionStore.create(vertx)))
             route().handler(UserSessionHandler.create(_authProvider))
@@ -58,7 +66,7 @@ constructor(private val _graphQLHandler: GraphQLHandler,
             route("/graphql").handler(_graphQLHandler)
             route("/graphqlws").handler(_graphQLHandlerWs)
 
-            route("/*").handler(StaticHandler.create())
+            route("/*").handler(StaticHandler.create().setCachingEnabled(false))
         }
 
         vertx.createHttpServer(options)

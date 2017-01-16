@@ -1,3 +1,37 @@
+.shadowButton:hover {
+  text-decoration: none;
+  background-color: #ddd !important;
+  background-image: linear-gradient(#eee, #ddd) !important;
+  border-color: #ccc !important;
+}
+
+.menuListButton:hover {
+  background-color: #4078c0 !important;
+  color: white !important;
+}
+
+.crossButton:hover {
+  fill: white !important;
+}
+
+.saveQueryButton:hover {
+  background-color: #4078c0 !important;
+  color: white !important;
+}
+
+.editModalInput:focus {
+  outline: none;
+  border-bottom-color: #4078c0 !important;
+}
+
+.editModalInputWrapper:hover {
+  background-color: #FAFAFA !important;
+}
+
+.editModalFormItemDelete:hover {
+  fill: #4078c0 !important;
+  background-color: #DEDEDE !important;
+}
 .graphiql-container {
   color: #141823;
   display: -webkit-flex;
@@ -19,7 +53,7 @@
     arial,
     sans-serif;
   font-size: 14px;
-  height: 100%;
+  height: calc(100% - 53px);
   margin: 0;
   overflow: hidden;
   width: 100%;
@@ -58,8 +92,8 @@
   -webkit-align-items: center;
       -ms-align-items: center;
           align-items: center;
-  background: -webkit-linear-gradient(#11110F, #11110F);
-  background:         linear-gradient(#11110F, #11110F);
+  background: -webkit-linear-gradient(#f7f7f7, #e2e2e2);
+  background:         linear-gradient(#f7f7f7, #e2e2e2);
   border-bottom: 1px solid #d0d0d0;
   cursor: default;
   display: -webkit-flex;
@@ -78,7 +112,7 @@
 }
 
 .graphiql-container .toolbar {
-  overflow-x: auto;
+  /*overflow-x: auto;*/
 }
 
 .graphiql-container .docExplorerShow {

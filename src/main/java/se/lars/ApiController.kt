@@ -32,9 +32,9 @@ constructor(_vertx: Vertx) : IApiController {
 
         // Prepare http client options to run HTTP/2
         val options = HttpClientOptions().apply {
-            protocolVersion = HttpVersion.HTTP_1_1
+            protocolVersion = HttpVersion.HTTP_2
             isSsl = true
-            //isUseAlpn = true
+            isUseAlpn = true
             isTrustAll = true
             defaultHost = "api.six.se"
             defaultPort = 443
