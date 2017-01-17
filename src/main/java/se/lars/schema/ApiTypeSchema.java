@@ -2,7 +2,8 @@ package se.lars.schema;
 
 
 import graphql.schema.*;
-import se.lars.ApiUser;
+import io.vertx.ext.auth.jwt.impl.JWTUser;
+import se.lars.auth.ApiUser;
 import se.lars.IApiController;
 import se.lars.types.*;
 
@@ -226,7 +227,7 @@ public class ApiTypeSchema
                        Organization organization = (Organization)env.getSource();
                        if (organization.mostLiquidEquity().isPresent()) {
                            IApiController apiController = (IApiController)env.getContext();
-                           return apiController.listing(organization.mostLiquidEquity().get().id(), (ApiUser)env.getContext());
+                           return apiController.listing(organization.mostLiquidEquity().get().id(), (JWTUser)env.getContext());
                        }
                        return CompletableFuture.completedFuture(null);
                    }))

@@ -11,7 +11,9 @@ import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpClientOptions
 import io.vertx.core.http.HttpVersion
+import io.vertx.ext.auth.jwt.impl.JWTUser
 import org.slf4j.LoggerFactory
+import se.lars.auth.ApiUser
 import se.lars.kutil.jsonObject
 import se.lars.types.Listing
 import se.lars.types.OrderBook
@@ -32,9 +34,9 @@ constructor(_vertx: Vertx) : IApiController {
 
         // Prepare http client options to run HTTP/2
         val options = HttpClientOptions().apply {
-            protocolVersion = HttpVersion.HTTP_1_1
+            protocolVersion = HttpVersion.HTTP_2
             isSsl = true
-            //            isUseAlpn = true
+            isUseAlpn = true
             isTrustAll = true
             defaultHost = "api.six.se"
             defaultPort = 443
@@ -54,19 +56,19 @@ constructor(_vertx: Vertx) : IApiController {
 
     }
 
-    override fun listing(listingId: String, usr: ApiUser): CompletionStage<Listing> {
+    override fun listing(listingId: String, usr: JWTUser): CompletionStage<Listing> {
         return invokeQuery("/v2/listings/" + listingId, Listing::class.java, usr)
     }
 
-    override fun organization(organizationId: String, usr: ApiUser): CompletionStage<Organization> {
+    override fun organization(organizationId: String, usr: JWTUser): CompletionStage<Organization> {
         return invokeQuery("/v2/organizations/" + organizationId, Organization::class.java, usr)
     }
 
-    override fun listingQuotes(listingId: String, usr: ApiUser): CompletionStage<Quotes> {
+    override fun listingQuotes(listingId: String, usr: JWTUser): CompletionStage<Quotes> {
         return invokeQuery("/v2/listings/$listingId/quotes", Quotes::class.java, usr)
     }
 
-    override fun listingOrderBook(listingId: String, usr: ApiUser): CompletionStage<OrderBook> {
+    override fun listingOrderBook(listingId: String, usr: JWTUser): CompletionStage<OrderBook> {
         return invokeQuery("/v2/listings/$listingId/orderbook", OrderBook::class.java, usr)
     }
 
@@ -94,11 +96,11 @@ constructor(_vertx: Vertx) : IApiController {
     }
 
 
-    private fun <T> invokeQuery(query: String, type: Class<T>, user: ApiUser): CompletableFuture<T> {
+    private fun <T> invokeQuery(query: String, type: Class<T>, user: JWTUser): CompletableFuture<T> {
         val future = CompletableFuture<T>()
 
         val authHeader = with(user.principal()) {
-            "${getString("token_type")} ${getString("access_token")}"
+            "Bearer ${getString("sub")}"
         }
 
         _log.info("Query: https://api.six.se$query")

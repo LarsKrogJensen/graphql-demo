@@ -1,10 +1,11 @@
 package se.lars
 
 import graphql.GraphQL
-import io.vertx.core.Context
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
+import io.vertx.ext.auth.User
+import io.vertx.ext.auth.jwt.impl.JWTUser
 import io.vertx.ext.web.RoutingContext
 import se.lars.kutil.cast
 import se.lars.kutil.jsonObject
@@ -12,13 +13,13 @@ import se.lars.kutil.loggerFor
 import se.lars.kutil.thenOn
 import se.lars.schema.ApiRequestContext
 import se.lars.schema.schema
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
 
 abstract class GraphQLHandlerBase(private val apiController: IApiController,
                                   private val searchController: ISearchController) : Handler<RoutingContext> {
     val log = loggerFor<GraphQLHandlerBase>()
-    protected fun executeGraphQL(jsonText: String, user: ApiUser, handler: (JsonObject) -> Unit): Unit {
+    private val invalidUser = JWTUser()
+
+    protected fun executeGraphQL(jsonText: String, user: User?, handler: (JsonObject) -> Unit): Unit {
 
         // be a bit more forgiving
         val body = jsonText.replace('\n', ' ').replace('\t', ' ')
@@ -42,7 +43,9 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
         val query = json.getString("query")
         val operation: String? = json.getString("operationName")
 
-        val context = ApiRequestContext(user, ApiControllerRequestScoop(apiController), searchController)
+        val context = ApiRequestContext(user?.cast<JWTUser>(invalidUser) ?: invalidUser,
+                                        ApiControllerRequestScoop(apiController),
+                                        searchController)
 
         graphQL.execute(query, operation, context, variables)
                 .thenOn(Vertx.currentContext())

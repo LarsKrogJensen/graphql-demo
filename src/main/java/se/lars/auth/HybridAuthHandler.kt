@@ -1,4 +1,4 @@
-package se.lars
+package se.lars.auth
 
 import io.vertx.core.http.HttpHeaders
 import io.vertx.core.json.JsonObject
@@ -12,28 +12,28 @@ import java.util.*
 class HybridAuthHandler(authProvider: AuthProvider, private val realm: String) : AuthHandlerImpl(authProvider) {
 
     override fun handle(context: RoutingContext) {
-        context.setUser(ApiUser(JsonObject()))
-        context.next()
-//        val user = context.user()
-//        if (user != null) {
-//            // Already authenticated in, just authorise
-//            //authorise(user, context)
-//            context.next()
-//        } else {
-//
-//            // 1. Check for bearer token
-//            handleBearerToken(context) {
-//                // 2. next up to try is basic auth
-//                handleBasicAuth(it) {
-//                    // nope basic auth was not available
-//                    // 3. try usr/pwd
-//                    handleParams(it) {
-//                        // not available
-//                        handle401(context)
-//                    }
-//                }
-//            }
-//        }
+//        context.setUser(ApiUser(JsonObject()))
+//        context.next()
+        val user = context.user()
+        if (user != null) {
+            // Already authenticated in, just authorise
+            //authorise(user, context)
+            context.next()
+        } else {
+
+            // 1. Check for bearer token
+            handleBearerToken(context) {
+                // 2. next up to try is basic auth
+                handleBasicAuth(it) {
+                    // nope basic auth was not available
+                    // 3. try usr/pwd
+                    handleParams(it) {
+                        // not available
+                        handle401(context)
+                    }
+                }
+            }
+        }
     }
 
     private fun handleBearerToken(context: RoutingContext, next: (RoutingContext) -> Unit) {

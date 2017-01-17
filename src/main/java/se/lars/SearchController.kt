@@ -5,7 +5,9 @@ import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpClientOptions
 import io.vertx.core.http.HttpVersion
+import io.vertx.ext.auth.jwt.impl.JWTUser
 import org.slf4j.LoggerFactory
+import se.lars.auth.ApiUser
 import se.lars.kutil.documentOf
 import se.lars.kutil.matchOf
 import se.lars.types.SearchItem
@@ -24,9 +26,9 @@ constructor(vertx: Vertx) : ISearchController {
 
         // Prepare http client options to run HTTP/2
         val options = HttpClientOptions().apply {
-            protocolVersion = HttpVersion.HTTP_1_1
+            protocolVersion = HttpVersion.HTTP_2
             isSsl = true
-//            isUseAlpn = true
+            isUseAlpn = true
             isTrustAll = true
             defaultHost = "services.six.se"
             defaultPort = 443
@@ -39,7 +41,7 @@ constructor(vertx: Vertx) : ISearchController {
 
     }
 
-    override fun searchListings(query: String, user: ApiUser): CompletionStage<List<SearchItem>> {
+    override fun searchListings(query: String, user: JWTUser): CompletionStage<List<SearchItem>> {
         val future = CompletableFuture<List<SearchItem>>()
 
         val requestURI = "/dictionary/rest/InsSearch?query=${URLEncoder.encode(query,"UTF-8")}&count=100&format=xml&ticket=notused"

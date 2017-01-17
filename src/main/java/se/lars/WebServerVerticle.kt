@@ -18,6 +18,8 @@ import io.vertx.rx.java.RxHelper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import se.lars.accesslog.AccessLogHandler
+import se.lars.auth.JWTAuthenticator
+import se.lars.auth.HybridAuthHandler
 import se.lars.chat.ChatSystemHandler
 import se.lars.kutil.loggerFor
 import se.lars.kutil.router
@@ -32,7 +34,7 @@ class WebServerVerticle
 constructor(private val _graphQLHandler: GraphQLHandler,
             private val _graphQLHandlerWs: GraphQLHandlerOverWS,
             private val _chatHandler: ChatSystemHandler,
-            private val _authProvider: AuthProvider) : AbstractVerticle() {
+            private val _apiController: IApiController) : AbstractVerticle() {
     private val _log = loggerFor<WebServerVerticle>()
 
     @Throws(Exception::class)
@@ -51,17 +53,25 @@ constructor(private val _graphQLHandler: GraphQLHandler,
         val corsHandler = with(CorsHandler.create("*")) {
             allowCredentials(true)
             allowedMethod(HttpMethod.POST)
-            allowedHeaders(setOf("content-type","authorization"))
+            allowedHeaders(setOf("content-type", "authorization"))
         }
+
+        val config = JsonObject().put("keyStore", JsonObject()
+                .put("path", "keystore.jceks")
+                .put("type", "jceks")
+                .put("password", "secret"))
+
+        val provider = JWTAuth.create(vertx, config)
 
         val router = router(vertx) {
             route().handler(AccessLogHandler.create("%r %s \"%{Content-Type}o\" %D %T %B"))
             route().handler(corsHandler)
             route().handler(BodyHandler.create())
-            route().handler(CookieHandler.create())
-            route().handler(SessionHandler.create(LocalSessionStore.create(vertx)))
-            route().handler(UserSessionHandler.create(_authProvider))
-            route().handler(HybridAuthHandler.create(_authProvider))
+            //            route().handler(CookieHandler.create())
+            //            route().handler(SessionHandler.create(LocalSessionStore.create(vertx)))
+            //            route().handler(UserSessionHandler.create(_authProvider))
+            route("/authenticate").handler(JWTAuthenticator(_apiController, provider))
+            route("/graphql*").handler(JWTAuthHandler.create(provider))
             route("/chat").handler(_chatHandler)
             route("/graphql").handler(_graphQLHandler)
             route("/graphqlws").handler(_graphQLHandlerWs)
@@ -83,7 +93,6 @@ constructor(private val _graphQLHandler: GraphQLHandler,
                         }
                     }
                 }
-
     }
 }
 

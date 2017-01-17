@@ -2,6 +2,7 @@ package se.lars
 
 
 import io.vertx.ext.web.RoutingContext
+import se.lars.auth.ApiUser
 import se.lars.kutil.jsonObject
 import javax.inject.Inject
 
@@ -11,7 +12,7 @@ constructor(apiController: IApiController,
             searchController: ISearchController) : GraphQLHandlerBase(apiController, searchController) {
 
     override fun handle(routingContext: RoutingContext) {
-        val user = routingContext.user() as ApiUser
+        val user = routingContext.user()
 
         // Upgrade request to WebSocket
         val ws = routingContext.request().upgrade()

@@ -1,6 +1,7 @@
 package se.lars
 
 import io.vertx.ext.auth.AuthProvider
+import se.lars.auth.ApiAuthProvider
 import se.lars.chat.ChatSystemHandler
 import se.lars.kutil.ModuleBase
 
@@ -14,6 +15,7 @@ class BootstrapModule : ModuleBase() {
         bind<AuthProvider>().to<ApiAuthProvider>()
         bind<GraphQLHandler>()
         bind<GraphQLHandlerOverWS>()
+//        bind<JWTAuthenticator>()
         bind<ChatSystemHandler>().asSingleton()
     }
 }
