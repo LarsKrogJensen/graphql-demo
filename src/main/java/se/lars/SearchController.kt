@@ -24,9 +24,9 @@ constructor(vertx: Vertx) : ISearchController {
 
         // Prepare http client options to run HTTP/2
         val options = HttpClientOptions().apply {
-            protocolVersion = HttpVersion.HTTP_2
+            protocolVersion = HttpVersion.HTTP_1_1
             isSsl = true
-            isUseAlpn = true
+//            isUseAlpn = true
             isTrustAll = true
             defaultHost = "services.six.se"
             defaultPort = 443
