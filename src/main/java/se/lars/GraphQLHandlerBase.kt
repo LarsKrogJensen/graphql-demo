@@ -5,6 +5,7 @@ import graphql.InvalidSyntaxError
 import io.vertx.core.Handler
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
+import se.lars.kutil.cast
 import se.lars.kutil.jsonObject
 import se.lars.schema.ApiRequestContext
 import se.lars.schema.schema
@@ -26,7 +27,13 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
         }
 
         val graphQL = GraphQL(schema)
-        val variables = json.getJsonObject("variables")?.map ?: emptyMap<String, Any>()
+        val variables = json.getValue("variables").let {
+            when (it) {
+                is JsonObject -> it.map
+                else          -> emptyMap<String, Any>()
+            }
+        }
+
         val query = json.getString("query")
         val operation: String? = json.getString("operationName")
 
