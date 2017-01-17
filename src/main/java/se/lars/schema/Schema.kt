@@ -37,55 +37,55 @@ private val quotesType = graphqlType("Quotes") {
     field<Date>("lastUpdated") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeededOptional(listing.lastUpdated())
+            succeeded(listing.lastUpdated)
         }
     }
     field<Double>("openPrice") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.openPrice().orElse(Double.NaN))
+            succeeded(listing.openPrice ?:Double.NaN)
         }
     }
     field<Double>("lowPrice") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.lowPrice().orElse(Double.NaN))
+            succeeded(listing.lowPrice ?:Double.NaN)
         }
     }
     field<Double>("lastPrice") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.lastPrice().orElse(Double.NaN))
+            succeeded(listing.lastPrice ?:Double.NaN)
         }
     }
     field<Double>("askPrice") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.askPrice().orElse(Double.NaN))
+            succeeded(listing.askPrice ?:Double.NaN)
         }
     }
     field<Double>("bidPrice") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.bidPrice().orElse(Double.NaN))
+            succeeded(listing.bidPrice ?:Double.NaN)
         }
     }
     field<Double>("highPrice") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.highPrice().orElse(Double.NaN))
+            succeeded(listing.highPrice ?:Double.NaN)
         }
     }
     field<Double>("tradedVolume") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.tradedVolume().orElse(Double.NaN))
+            succeeded(listing.tradedVolume ?:Double.NaN)
         }
     }
     field<Double>("tradedAmount") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.tradedAmount().orElse(Double.NaN))
+            succeeded(listing.tradedAmount ?:Double.NaN)
         }
     }
 }
@@ -94,43 +94,43 @@ private val orderLevelType = graphqlType("OrderLevel") {
     field<Int>("level") {
         dataFetcher = { env ->
             val orderLevel = env.source as OrderLevel
-            succeeded(orderLevel.level())
+            succeeded(orderLevel.level)
         }
     }
     field<Double>("askPrice") {
         dataFetcher = { env ->
             val orderLevel = env.source as OrderLevel
-            succeeded(orderLevel.askPrice())
+            succeeded(orderLevel.askPrice)
         }
     }
     field<Double>("askVolume") {
         dataFetcher = { env ->
             val orderLevel = env.source as OrderLevel
-            succeeded(orderLevel.askVolume())
+            succeeded(orderLevel.askVolume)
         }
     }
     field<Int>("askOrders") {
         dataFetcher = { env ->
             val orderLevel = env.source as OrderLevel
-            succeeded(orderLevel.askOrders().toInt())
+            succeeded(orderLevel.askOrders.toInt())
         }
     }
     field<Double>("bidPrice") {
         dataFetcher = { env ->
             val orderLevel = env.source as OrderLevel
-            CompletableFuture.completedFuture<Double>(orderLevel.bidPrice())
+            CompletableFuture.completedFuture<Double>(orderLevel.bidPrice)
         }
     }
     field<Double>("bidVolume") {
         dataFetcher = { env ->
             val orderLevel = env.source as OrderLevel
-            succeeded(orderLevel.bidVolume())
+            succeeded(orderLevel.bidVolume)
         }
     }
     field<Int>("bidOrders") {
         dataFetcher = { env ->
             val orderLevel = env.source as OrderLevel
-            succeeded(orderLevel.bidOrders().toInt())
+            succeeded(orderLevel.bidOrders.toInt())
         }
     }
 }
@@ -139,20 +139,20 @@ private val orderBookType = graphqlType("OrderBook") {
     field<Date>("lastUpdated") {
         dataFetcher = { env ->
             val orderBook = env.source as OrderBook
-            succeeded(orderBook.lastUpdated())
+            succeeded(orderBook.lastUpdated)
         }
     }
     field<String>("state") {
         dataFetcher = { env ->
             val orderBook = env.source as OrderBook
-            succeeded(orderBook.state())
+            succeeded(orderBook.state)
         }
     }
     field<List<OrderLevel>>("levels") {
         type = graphqlList(orderLevelType)
         dataFetcher = { env ->
             val orderBook = env.source as OrderBook
-            succeeded(orderBook.levels())
+            succeeded(orderBook.levels)
         }
     }
 }

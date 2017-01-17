@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.guava.GuavaModule
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND
 import io.netty.handler.codec.http.HttpResponseStatus.OK
 import io.vertx.core.Vertx
@@ -51,6 +52,7 @@ constructor(_vertx: Vertx) : IApiController {
         _mapper = ObjectMapper().apply {
             registerModule(GuavaModule())
             registerModule(Jdk8Module())
+            registerModule(KotlinModule())
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         }
 

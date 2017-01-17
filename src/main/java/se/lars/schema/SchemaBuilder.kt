@@ -155,7 +155,10 @@ fun graphqlNonNull(wrapped: GraphQLType) = GraphQLNonNull(wrapped)
 
 fun graphqlList(wrapped: GraphQLType) = GraphQLList(wrapped)
 
-fun <T> succeeded(value: T) = CompletableFuture.completedFuture(value)!!
+fun <T> succeeded(value: T) = CompletableFuture.completedFuture(value)
+
+fun <T> succeededNullable(value: T?) = CompletableFuture.completedFuture(value)
+
 
 fun <T> succeededOptional(optional: Optional<T>): CompletableFuture<T> {
     return succeeded(if (optional.isPresent) optional.get() else null)
