@@ -18,6 +18,7 @@ constructor(apiController: IApiController,
     override fun handle(routingContext: RoutingContext) {
         // request response handler
 
+
         // execute with async callback handler that will respond to client
         executeGraphQL(routingContext.body.toString(), routingContext.user()) {
             routingContext.response()

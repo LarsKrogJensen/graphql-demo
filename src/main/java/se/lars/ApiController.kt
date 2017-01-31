@@ -35,9 +35,9 @@ constructor(_vertx: Vertx) : IApiController {
 
         // Prepare http client options to run HTTP/2
         val options = HttpClientOptions().apply {
-            protocolVersion = HttpVersion.HTTP_2
+            protocolVersion = HttpVersion.HTTP_1_1
             isSsl = true
-            isUseAlpn = true
+//            isUseAlpn = true
             isTrustAll = true
             defaultHost = "api.six.se"
             defaultPort = 443
@@ -101,9 +101,7 @@ constructor(_vertx: Vertx) : IApiController {
     private fun <T> invokeQuery(query: String, type: Class<T>, user: JWTUser): CompletableFuture<T> {
         val future = CompletableFuture<T>()
 
-        val authHeader = with(user.principal()) {
-            "Bearer ${getString("sub")}"
-        }
+        val authHeader = "Bearer ${user.principal().getString("sub")}"
 
         _log.info("Query: https://api.six.se$query")
 

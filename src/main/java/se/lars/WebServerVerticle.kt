@@ -49,6 +49,7 @@ constructor(private val _graphQLHandler: GraphQLHandler,
              })*/
         }
 
+//        Optional.ofNullable("lars").als {  }
         // configure cross domain access
         val corsHandler = with(CorsHandler.create("*")) {
             allowCredentials(true)
@@ -76,6 +77,7 @@ constructor(private val _graphQLHandler: GraphQLHandler,
             route("/graphql").handler(_graphQLHandler)
             route("/graphqlws").handler(_graphQLHandlerWs)
 
+            
             route("/*").handler(StaticHandler.create().setCachingEnabled(false))
         }
 

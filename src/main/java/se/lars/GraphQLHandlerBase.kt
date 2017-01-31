@@ -13,6 +13,7 @@ import se.lars.kutil.loggerFor
 import se.lars.kutil.thenOn
 import se.lars.schema.ApiRequestContext
 import se.lars.schema.schema
+import java.nio.charset.Charset
 
 abstract class GraphQLHandlerBase(private val apiController: IApiController,
                                   private val searchController: ISearchController) : Handler<RoutingContext> {
@@ -21,6 +22,8 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
 
     protected fun executeGraphQL(jsonText: String, user: User?, handler: (JsonObject) -> Unit): Unit {
 
+
+//        log.info("Charset: ${Charset.defaultCharset().name()}")
         // be a bit more forgiving
         val body = jsonText.replace('\n', ' ').replace('\t', ' ')
 
