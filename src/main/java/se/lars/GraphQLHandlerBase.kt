@@ -23,6 +23,7 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
     protected fun executeGraphQL(jsonText: String, user: User?, handler: (JsonObject) -> Unit): Unit {
 
 
+        log.info("Query: \n" + jsonText)
 //        log.info("Charset: ${Charset.defaultCharset().name()}")
         // be a bit more forgiving
         val body = jsonText.replace('\n', ' ').replace('\t', ' ')
@@ -34,6 +35,7 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
             handler(jsonObject("errors" to "Invalid Json format"))
             return
         }
+        
 
         val graphQL = GraphQL(schema)
         val variables = json.getValue("variables").let {
