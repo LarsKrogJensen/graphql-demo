@@ -11,10 +11,14 @@ import kotlin.properties.Delegates
 import kotlin.reflect.KClass
 
 
+@DslMarker
+annotation class BuilderMarker
+
 abstract class BuilderBase(val name: String) {
     var description: String? = null
 }
 
+@BuilderMarker
 abstract class TypeBuilderBase(name: String) : BuilderBase(name) {
     val fields: MutableList<GraphQLFieldDefinition<*>> = mutableListOf()
 
@@ -22,6 +26,7 @@ abstract class TypeBuilderBase(name: String) : BuilderBase(name) {
         val fieldBuilder = FieldBuilder<T>(name)
         fieldBuilder.type = typeResolve(T::class)
         fieldBuilder.block()
+
         fields += fieldBuilder.build()
     }
 
@@ -37,6 +42,8 @@ class ArgumentBuilder<T>(name: String) : BuilderBase(name) {
     fun build() = GraphQLArgument(name, description, type, defaultValue)
 }
 
+
+@BuilderMarker
 class FieldBuilder<T>(name: String) : BuilderBase(name) {
     var type: GraphQLOutputType by Delegates.notNull<GraphQLOutputType>()
     var dataFetcher: ((env: DataFetchingEnvironment) -> CompletionStage<T>)? = null
@@ -57,11 +64,11 @@ class FieldBuilder<T>(name: String) : BuilderBase(name) {
     }
 
     fun build() = GraphQLFieldDefinition<T>(name,
-                                            description,
-                                            type,
-                                            DataFetcher { dataFetcher?.invoke(it) },
-                                            arguments,
-                                            deprecationReason)
+            description,
+            type,
+            DataFetcher { dataFetcher?.invoke(it) },
+            arguments,
+            deprecationReason)
 }
 
 class InputFieldBuilder<T>(name: String) : BuilderBase(name) {
@@ -69,9 +76,9 @@ class InputFieldBuilder<T>(name: String) : BuilderBase(name) {
     var defaultValue: T? = null
 
     fun build() = GraphQLInputObjectField(name,
-                                          description,
-                                          type,
-                                          defaultValue)
+            description,
+            type,
+            defaultValue)
 }
 
 class InterfaceBuilder(name: String) : TypeBuilderBase(name) {
@@ -80,6 +87,7 @@ class InterfaceBuilder(name: String) : TypeBuilderBase(name) {
     fun build() = GraphQLInterfaceType(name, description, fields, typeResolver)
 }
 
+@BuilderMarker
 class ObjectTypeBuilder(name: String) : TypeBuilderBase(name) {
     private val interfaces: MutableList<GraphQLInterfaceType> = mutableListOf()
     fun build() = GraphQLObjectType(name, description, fields, interfaces)
@@ -112,6 +120,7 @@ class InputTypeBuilder(name: String) : BuilderBase(name) {
     fun <T> field(field: GraphQLInputObjectField) {
         fields += field
     }
+
     fun build() = GraphQLInputObjectType(name, description, fields)
 }
 
@@ -129,14 +138,14 @@ class SchemaBuilder {
 }
 
 fun <T : Any> typeResolve(type: KClass<T>) = when (type) {
-    String::class  -> GraphQLString
-    Date::class    -> GraphQLDate
-    Int::class     -> GraphQLInt
-    Long::class    -> GraphQLLong
-    Float::class   -> GraphQLFloat
-    Double::class  -> GraphQLFloat
+    String::class -> GraphQLString
+    Date::class -> GraphQLDate
+    Int::class -> GraphQLInt
+    Long::class -> GraphQLLong
+    Float::class -> GraphQLFloat
+    Double::class -> GraphQLFloat
     Boolean::class -> GraphQLBoolean
-    else           -> GraphQLString
+    else -> GraphQLString
 }!!
 
 fun graphqlType(name: String, block: ObjectTypeBuilder.() -> Unit) = ObjectTypeBuilder(name).apply { block() }.build()

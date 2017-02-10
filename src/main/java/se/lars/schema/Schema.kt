@@ -43,49 +43,49 @@ private val quotesType = graphqlType("Quotes") {
     field<Double>("openPrice") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.openPrice ?:Double.NaN)
+            succeeded(listing.openPrice ?: Double.NaN)
         }
     }
     field<Double>("lowPrice") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.lowPrice ?:Double.NaN)
+            succeeded(listing.lowPrice ?: Double.NaN)
         }
     }
     field<Double>("lastPrice") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.lastPrice ?:Double.NaN)
+            succeeded(listing.lastPrice ?: Double.NaN)
         }
     }
     field<Double>("askPrice") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.askPrice ?:Double.NaN)
+            succeeded(listing.askPrice ?: Double.NaN)
         }
     }
     field<Double>("bidPrice") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.bidPrice ?:Double.NaN)
+            succeeded(listing.bidPrice ?: Double.NaN)
         }
     }
     field<Double>("highPrice") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.highPrice ?:Double.NaN)
+            succeeded(listing.highPrice ?: Double.NaN)
         }
     }
     field<Double>("tradedVolume") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.tradedVolume ?:Double.NaN)
+            succeeded(listing.tradedVolume ?: Double.NaN)
         }
     }
     field<Double>("tradedAmount") {
         dataFetcher = { env ->
             val listing = env.source as Quotes
-            succeeded(listing.tradedAmount ?:Double.NaN)
+            succeeded(listing.tradedAmount ?: Double.NaN)
         }
     }
 }

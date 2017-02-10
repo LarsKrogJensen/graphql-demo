@@ -38,7 +38,7 @@ public class MyService
     @Override
     public CompletableFuture<Stream<String>> getData()
     {
-        return CompletableFuture.supplyAsync(() -> Stream.of("Lars", "Är", "Bäst"));
+        return CompletableFuture.supplyAsync(() -> Stream.of("Lars", "is", "best"));
     }
 
     @Override
@@ -47,8 +47,8 @@ public class MyService
         return Observable.create(subscriber -> {
             CompletableFuture.runAsync(() -> {
                 subscriber.onNext("Lars");
-                subscriber.onNext("Är");
-                subscriber.onNext("Bäst");
+                subscriber.onNext("is");
+                subscriber.onNext("best");
                 subscriber.onCompleted();
             });
         });
