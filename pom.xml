@@ -12,7 +12,7 @@
         <vertx.version>3.4.0.Beta1</vertx.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <kotlin.version>1.1.0-beta-38</kotlin.version>
+        <kotlin.version>1.1.0-rc-91</kotlin.version>
         <jackson.version>2.7.4</jackson.version>
         <encoding>UTF-8</encoding>
     </properties>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-tcnative-boringssl-static</artifactId>
-            <version>1.1.33.Fork21</version>
+            <version>1.1.33.Fork25</version>
             <!--<classifier>windows-x86_64</classifier>-->
         </dependency>
 
@@ -110,7 +110,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.1.7</version>
+            <version>1.1.8</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
@@ -123,14 +123,14 @@
         <dependency>
             <groupId>io.reactivex</groupId>
             <artifactId>rxjava</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.5</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.immutables/value -->
         <dependency>
             <groupId>org.immutables</groupId>
             <artifactId>value</artifactId>
-            <version>2.3.9</version>
+            <version>2.4.1</version>
             <scope>compile</scope>
         </dependency>
 
@@ -259,8 +259,13 @@
         </extensions>
         <plugins>
             <plugin>
+                <groupId>com.versioneye</groupId>
+                <artifactId>versioneye-maven-plugin</artifactId>
+                <version>3.11.1</version>
+            </plugin>
+            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.3</version>
+                <version>3.0.0</version>
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>

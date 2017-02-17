@@ -12,7 +12,7 @@ object Main {
     @Throws(Exception::class)
     @JvmStatic fun main(args: Array<String>) {
         System.setProperty("vertx.logger-delegate-factory-class-name",
-                           "io.vertx.core.logging.SLF4JLogDelegateFactory")
+                "io.vertx.core.logging.SLF4JLogDelegateFactory")
 
         val vertx = Vertx.vertx()
 
