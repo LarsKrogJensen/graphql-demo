@@ -1,19 +1,19 @@
 package se.lars.schema;
 
-
-import graphql.schema.*;
-import io.vertx.ext.auth.jwt.impl.JWTUser;
-import se.lars.auth.ApiUser;
-import se.lars.IApiController;
-import se.lars.types.*;
-
-import java.util.concurrent.CompletableFuture;
-
-import static graphql.Scalars.*;
-import static graphql.schema.GraphQLArgument.newArgument;
-import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
-import static graphql.schema.GraphQLObjectType.newObject;
-import static se.lars.schema.ScalarTypes.*;
+//
+//import graphql.schema.*;
+//import io.vertx.ext.auth.jwt.impl.JWTUser;
+//import se.lars.auth.ApiUser;
+//import se.lars.IApiController;
+//import se.lars.types.*;
+//
+//import java.util.concurrent.CompletableFuture;
+//
+//import static graphql.Scalars.*;
+//import static graphql.schema.GraphQLArgument.newArgument;
+//import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
+//import static graphql.schema.GraphQLObjectType.newObject;
+//import static se.lars.schema.ScalarTypes.*;
 
 public class ApiTypeSchema
 {
