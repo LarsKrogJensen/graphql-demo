@@ -10,7 +10,8 @@ import se.lars.kutil.deploy
 
 object Main {
     @Throws(Exception::class)
-    @JvmStatic fun main(args: Array<String>) {
+    @JvmStatic
+    fun main(args: Array<String>) {
         System.setProperty("vertx.logger-delegate-factory-class-name",
                 "io.vertx.core.logging.SLF4JLogDelegateFactory")
 
