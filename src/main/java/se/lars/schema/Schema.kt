@@ -1,30 +1,31 @@
 package se.lars.schema
 
-import graphql.Scalars.GraphQLInt
-import graphql.Scalars.GraphQLString
-import graphql.relay.Connection
-import graphql.relay.Relay
-import graphql.relay.SimpleListConnection
-import graphql.schema.GraphQLTypeReference
-import se.lars.kutil.cast
+import graphql.GraphQLInt
+import graphql.GraphQLString
+import graphql.schema.*
+import se.lars.kutil.succeeded
+import se.lars.kutil.succeededOptional
+import se.lars.kutil.succeededOptionalInt
 import se.lars.types.*
 import java.util.*
-import java.util.concurrent.CompletableFuture
 
 /**
  * Defines the Sector QL type
  */
-private val sectorType = graphqlType("Sector") {
-    field<String>("code") {
+private val sectorType = newObject {
+    name = "Sector"
+    field<String> {
+        name = "code"
         description = "Sector code"
-        dataFetcher = { env ->
-            val sector = env.source as Sector
+        fetcher = { env ->
+            val sector = env.source<Sector>()
             succeeded(sector.code())
         }
     }
-    field<String>("name") {
-        dataFetcher = { env ->
-            val sector = env.source as Sector
+    field<String> {
+        name = "name"
+        fetcher = { env ->
+            val sector = env.source<Sector>()
             succeeded(sector.description())
         }
     }
@@ -33,170 +34,176 @@ private val sectorType = graphqlType("Sector") {
 /**
  * Defines the Quotes QL type
  */
-private val quotesType = graphqlType("Quotes") {
-    field<Date>("lastUpdated") {
-        dataFetcher = { env ->
-            val listing = env.source as Quotes
-            succeeded(listing.lastUpdated)
+private val quotesType = newObject {
+    name = "Quotes"
+    field<Date> {
+        name = "lastUpdated"
+        fetcher = { env ->
+            succeeded(env.source<Quotes>().lastUpdated)
         }
     }
-    field<Double>("openPrice") {
-        dataFetcher = { env ->
-            val listing = env.source as Quotes
-            succeeded(listing.openPrice ?: Double.NaN)
+    field<Double> {
+        name = "openPrice"
+        fetcher = { env ->
+            succeeded(env.source<Quotes>().openPrice ?: Double.NaN)
         }
     }
-    field<Double>("lowPrice") {
-        dataFetcher = { env ->
-            val listing = env.source as Quotes
-            succeeded(listing.lowPrice ?: Double.NaN)
+    field<Double> {
+        name = "lowPrice"
+        fetcher = { env ->
+            succeeded(env.source<Quotes>().lowPrice ?: Double.NaN)
         }
     }
-    field<Double>("lastPrice") {
-        dataFetcher = { env ->
-            val listing = env.source as Quotes
-            succeeded(listing.lastPrice ?: Double.NaN)
+    field<Double> {
+        name = "lastPrice"
+        fetcher = { env ->
+            succeeded(env.source<Quotes>().lastPrice ?: Double.NaN)
         }
     }
-    field<Double>("askPrice") {
-        dataFetcher = { env ->
-            val listing = env.source as Quotes
-            succeeded(listing.askPrice ?: Double.NaN)
+    field<Double> {
+        name = "askPrice"
+        fetcher = { env ->
+            succeeded(env.source<Quotes>().askPrice ?: Double.NaN)
         }
     }
-    field<Double>("bidPrice") {
-        dataFetcher = { env ->
-            val listing = env.source as Quotes
-            succeeded(listing.bidPrice ?: Double.NaN)
+    field<Double> {
+        name = "bidPrice"
+        fetcher = { env ->
+            succeeded(env.source<Quotes>().bidPrice ?: Double.NaN)
         }
     }
-    field<Double>("highPrice") {
-        dataFetcher = { env ->
-            val listing = env.source as Quotes
-            succeeded(listing.highPrice ?: Double.NaN)
+    field<Double> {
+        name = "highPrice"
+        fetcher = { env ->
+            succeeded(env.source<Quotes>().highPrice ?: Double.NaN)
         }
     }
-    field<Double>("tradedVolume") {
-        dataFetcher = { env ->
-            val listing = env.source as Quotes
-            succeeded(listing.tradedVolume ?: Double.NaN)
+    field<Double> {
+        name = "tradedVolume"
+        fetcher = { env ->
+            succeeded(env.source<Quotes>().tradedVolume ?: Double.NaN)
         }
     }
-    field<Double>("tradedAmount") {
-        dataFetcher = { env ->
-            val listing = env.source as Quotes
-            succeeded(listing.tradedAmount ?: Double.NaN)
-        }
-    }
-}
-
-private val orderLevelType = graphqlType("OrderLevel") {
-    field<Int>("level") {
-        dataFetcher = { env ->
-            val orderLevel = env.source as OrderLevel
-            succeeded(orderLevel.level)
-        }
-    }
-    field<Double>("askPrice") {
-        dataFetcher = { env ->
-            val orderLevel = env.source as OrderLevel
-            succeeded(orderLevel.askPrice)
-        }
-    }
-    field<Double>("askVolume") {
-        dataFetcher = { env ->
-            val orderLevel = env.source as OrderLevel
-            succeeded(orderLevel.askVolume)
-        }
-    }
-    field<Int>("askOrders") {
-        dataFetcher = { env ->
-            val orderLevel = env.source as OrderLevel
-            succeeded(orderLevel.askOrders.toInt())
-        }
-    }
-    field<Double>("bidPrice") {
-        dataFetcher = { env ->
-            val orderLevel = env.source as OrderLevel
-            CompletableFuture.completedFuture<Double>(orderLevel.bidPrice)
-        }
-    }
-    field<Double>("bidVolume") {
-        dataFetcher = { env ->
-            val orderLevel = env.source as OrderLevel
-            succeeded(orderLevel.bidVolume)
-        }
-    }
-    field<Int>("bidOrders") {
-        dataFetcher = { env ->
-            val orderLevel = env.source as OrderLevel
-            succeeded(orderLevel.bidOrders.toInt())
+    field<Double> {
+        name = "tradedAmount"
+        fetcher = { env ->
+            succeeded(env.source<Quotes>().tradedAmount ?: Double.NaN)
         }
     }
 }
 
-private val orderBookType = graphqlType("OrderBook") {
-    field<Date>("lastUpdated") {
-        dataFetcher = { env ->
-            val orderBook = env.source as OrderBook
-            succeeded(orderBook.lastUpdated)
+private val orderLevelType = newObject {
+    name = "OrderLevel"
+    field<Int> {
+        name = "level"
+        fetcher = { env ->
+            succeeded(env.source<OrderLevel>().level)
         }
     }
-    field<String>("state") {
-        dataFetcher = { env ->
-            val orderBook = env.source as OrderBook
-            succeeded(orderBook.state)
+    field<Double> {
+        name = "askPrice"
+        fetcher = { env ->
+            succeeded(env.source<OrderLevel>().askPrice)
         }
     }
-    field<List<OrderLevel>>("levels") {
-        type = graphqlList(orderLevelType)
-        dataFetcher = { env ->
-            val orderBook = env.source as OrderBook
-            succeeded(orderBook.levels)
+    field<Double> {
+        name = "askVolume"
+        fetcher = { env ->
+            succeeded(env.source<OrderLevel>().askVolume)
+        }
+    }
+    field<Int> {
+        name = "askOrders"
+        fetcher = { env ->
+            succeeded(env.source<OrderLevel>().askOrders.toInt())
+        }
+    }
+    field<Double> {
+        name = "bidPrice"
+        fetcher = { env ->
+            succeeded(env.source<OrderLevel>().bidPrice)
+        }
+    }
+    field<Double> {
+        name = "bidVolume"
+        fetcher = { env ->
+            succeeded(env.source<OrderLevel>().bidVolume)
+        }
+    }
+    field<Int> {
+        name = "bidOrders"
+        fetcher = { env ->
+            succeeded(env.source<OrderLevel>().bidOrders.toInt())
         }
     }
 }
 
-private val organizationType = graphqlType("Organization") {
-    field<String>("id") {
-        type = graphqlNonNull(GraphQLString)
-        dataFetcher = { env ->
-            val org = env.source as Organization
-            succeeded(org.id())
+private val orderBookType = newObject {
+    name = "OrderBook"
+    field<Date> {
+        name = "lastUpdated"
+        fetcher = { env ->
+            succeeded(env.source<OrderBook>().lastUpdated)
         }
     }
-    field<String>("name") {
-        dataFetcher = { env ->
-            val org = env.source as Organization
+    field<String> {
+        name = "state"
+        fetcher = { env ->
+            succeeded(env.source<OrderBook>().state)
+        }
+    }
+    field<List<OrderLevel>> {
+        name = "levels"
+        type = GraphQLList(orderLevelType)
+        fetcher = { env ->
+            succeeded(env.source<OrderBook>().levels)
+        }
+    }
+}
+
+private val organizationType = newObject {
+    name = "Organization"
+    field<String> {
+        name = "id"
+        type = GraphQLNonNull(GraphQLString)
+        fetcher = { env ->
+            succeeded(env.source<Organization>().id())
+        }
+    }
+    field<String> {
+        name = "name"
+        fetcher = { env ->
+            val org = env.source<Organization>()
             succeeded(org.name().orElse(null))
         }
     }
-    field<String>("countryCode") {
-        dataFetcher = { env ->
-            val org = env.source as Organization
-            succeeded(org.countryCode().orElse(null))
+    field<String> {
+        name = "countryCode"
+        fetcher = { env ->
+            succeeded(env.source<Organization>().countryCode().orElse(null))
         }
     }
-    field<Sector>("industryClassification") {
+    field<Sector> {
+        name = "industryClassification"
         type = sectorType
-        dataFetcher = { env ->
-            val org = env.source as Organization
-            succeeded(org.industryClassification().orElse(null))
+        fetcher = { env ->
+            succeeded(env.source<Organization>().industryClassification().orElse(null))
         }
     }
-    field<Sector>("subIndustryClassification") {
+    field<Sector> {
+        name = "subIndustryClassification"
         type = sectorType
-        dataFetcher = { env ->
-            val org = env.source as Organization
-            succeeded(org.industryClassification().orElse(null))
+        fetcher = { env ->
+            succeeded(env.source<Organization>().industryClassification().orElse(null))
         }
     }
-    field<Listing>("mostLiquidEquity") {
+    field<Listing> {
+        name = "mostLiquidEquity"
         type = GraphQLTypeReference("Listing") // required as we have circular references
-        dataFetcher = { env ->
-            val org = env.source as Organization
+        fetcher = { env ->
+            val org = env.source<Organization>()
             if (org.mostLiquidEquity().isPresent) {
-                val context = env.context as ApiRequestContext
+                val context = env.context<ApiRequestContext>()
                 context.apiController.listing(org.mostLiquidEquity().get().id(), context.user)
             } else
                 succeeded(null)
@@ -206,71 +213,75 @@ private val organizationType = graphqlType("Organization") {
 }
 
 
-private val listingType = graphqlType("Listing") {
-    field<String>("id") {
-        type = graphqlNonNull(GraphQLString)
-        dataFetcher = { env ->
-            val listing = env.source as Listing
-            succeeded(listing.id())
+private val listingType = newObject {
+    name = "Listing"
+    field<String> {
+        name = "id"
+        type = GraphQLNonNull(GraphQLString)
+        fetcher = { env ->
+            succeeded(env.source<Listing>().id())
         }
     }
-    field<String>("name") {
-        dataFetcher = { env ->
-            val listing = env.source as Listing
-            succeededOptional(listing.name())
+    field<String> {
+        name = "name"
+        fetcher = { env ->
+            succeededOptional(env.source<Listing>().name())
         }
     }
-    field<String>("longName") {
-        dataFetcher = { env ->
-            val listing = env.source as Listing
-            succeededOptional(listing.longName())
+    field<String> {
+        name = "longName"
+        fetcher = { env ->
+            succeededOptional(env.source<Listing>().longName())
         }
     }
-    field<String>("currencyCode") {
-        dataFetcher = { env ->
-            val listing = env.source as Listing
-            succeededOptional(listing.currencyCode())
+    field<String> {
+        name = "currencyCode"
+        fetcher = { env ->
+            succeededOptional(env.source<Listing>().currencyCode())
         }
     }
-    field<String>("type") {
-        dataFetcher = { env ->
-            val listing = env.source as Listing
-            succeededOptional(listing.type())
+    field<String> {
+        name = "type"
+        fetcher = { env ->
+            succeededOptional(env.source<Listing>().type())
         }
     }
-    field<Int>("roundLot") {
-        dataFetcher = { env ->
-            val listing = env.source as Listing
-            succeededOptionalInt(listing.roundLot())
+    field<Int> {
+        name = "roundLot"
+        fetcher = { env ->
+            succeededOptionalInt(env.source<Listing>().roundLot())
         }
     }
-    field<Date>("listingDate") {
-        dataFetcher = { env ->
-            val listing = env.source as Listing
-            succeededOptional(listing.listingDate())
+    field<Date> {
+        name = "listingDate"
+        fetcher = { env ->
+            succeededOptional(env.source<Listing>().listingDate())
         }
     }
-    field<Quotes>("quotes") {
+    field<Quotes> {
+        name = "quotes"
         type = quotesType
-        dataFetcher = { env ->
-            val listing = env.source as Listing
-            val context = env.context as ApiRequestContext
+        fetcher = { env ->
+            val listing = env.source<Listing>()
+            val context = env.context<ApiRequestContext>()
             context.apiController.listingQuotes(listing.id(), context.user)
         }
     }
-    field<OrderBook>("orderbook") {
+    field<OrderBook> {
+        name = "orderbook"
         type = orderBookType
-        dataFetcher = { env ->
-            val listing = env.source as Listing
-            val context = env.context as ApiRequestContext
+        fetcher = { env ->
+            val listing = env.source<Listing>()
+            val context = env.context<ApiRequestContext>()
             context.apiController.listingOrderBook(listing.id(), context.user)
         }
     }
-    field<Organization>("issuer") {
+    field<Organization> {
+        name = "issuer"
         type = organizationType
-        dataFetcher = { env ->
-            val listing = env.source as Listing
-            val context = env.context as ApiRequestContext
+        fetcher = { env ->
+            val listing = env.source<Listing>()
+            val context = env.context<ApiRequestContext>()
             if (listing.issuer.isPresent)
                 context.apiController.organization(listing.issuer.get().id(), context.user)
             else
@@ -279,136 +290,158 @@ private val listingType = graphqlType("Listing") {
     }
 }
 
-private val searchItemType = graphqlType("SearchItem") {
-    field<String>("id") {
-        dataFetcher = { succeeded(it.source.cast<SearchItem>().id) }
+private val searchItemType = newObject {
+    name = "SearchItem"
+    field<String> {
+        name = "id"
+        fetcher = { succeeded(it.source<SearchItem>().id) }
     }
-    field<Float>("score") {
-        dataFetcher = { succeeded(it.source.cast<SearchItem>().score) }
+    field<Float> {
+        name = "score"
+        fetcher = { succeeded(it.source<SearchItem>().score) }
     }
-    field<String>("name") {
-        dataFetcher = { succeeded(it.source.cast<SearchItem>().name) }
+    field<String> {
+        name = "name"
+        fetcher = { succeeded(it.source<SearchItem>().name) }
     }
-    field<String>("longName") {
-        dataFetcher = { succeeded(it.source.cast<SearchItem>().longName) }
+    field<String> {
+        name = "longName"
+        fetcher = { succeeded(it.source<SearchItem>().longName) }
     }
-    field<Listing>("listing") {
+    field<Listing> {
+        name = "listing"
         type = listingType
-        dataFetcher = { env ->
-            with(env.context.cast<ApiRequestContext>()) {
-                apiController.listing(env.source.cast<SearchItem>().id, user)
+        fetcher = { env ->
+            with(env.context<ApiRequestContext>()) {
+                apiController.listing(env.source<SearchItem>().id, user)
             }
         }
     }
 }
 
-private val personType = graphqlType("Person") {
-    field<Int>("socialSecurityId") {
-        dataFetcher = { env ->
-            succeeded(env.source.cast<Person>().id)
+private val personType = newObject {
+    name = "Person"
+    field<Int> {
+        name = "socialSecurityId"
+        fetcher = { env ->
+            succeeded(env.source<Person>().id)
         }
 
     }
-    field<String>("firstName") {
-        dataFetcher = { env ->
-            succeeded(env.source.cast<Person>().firstName)
+    field<String> {
+        name = "firstName"
+        fetcher = { env ->
+            succeeded(env.source<Person>().firstName)
         }
 
     }
-    field<String>("lastName") {
-        dataFetcher = { env ->
-            succeeded(env.source.cast<Person>().lastName)
+    field<String> {
+        name = "lastName"
+        fetcher = { env ->
+            succeeded(env.source<Person>().lastName)
         }
     }
 }
 
 // Queries
-private val listingQuery = graphqlField<Listing>("listing") {
+private val listingQuery = newField<Listing> {
+    name = "listing"
     type = listingType
-    argument<String>("id") {
+    argument {
+        name = "id"
         description = "Listing identifier"
-        type = graphqlNonNull(GraphQLString)
+        type = GraphQLNonNull(GraphQLString)
     }
-    dataFetcher = { env ->
-        val context = env.context as ApiRequestContext
-        context.apiController.listing(env.getArgument("id"), context.user)
+    fetcher = { env ->
+        val context = env.context<ApiRequestContext>()
+        context.apiController.listing(env.argument("id"), context.user)
     }
 }
 
-private val organizationQuery = graphqlField<Organization>("organization") {
+private val organizationQuery = newField<Organization> {
+    name = "organization"
     type = organizationType
-    argument<String>("id") {
+    argument {
+        name = "id"
         description = "Organization identifier"
-        type = graphqlNonNull(GraphQLString)
+        type = GraphQLNonNull(GraphQLString)
     }
-    dataFetcher = { env ->
-        val context = env.context as ApiRequestContext
-        context.apiController.organization(env.getArgument("id"), context.user)
-    }
-}
-
-private val personsQuery = graphqlField<List<Person>>("persons") {
-    type = graphqlList(personType)
-    dataFetcher = {
-        succeeded(PersonRepository.allPersons())
+    fetcher = { env ->
+        val context = env.context<ApiRequestContext>()
+        context.apiController.organization(env.argument("id"), context.user)
     }
 }
 
-private val listingSearchQuery = graphqlField<List<SearchItem>>("listingSearch") {
-    type = graphqlList(searchItemType)
-    argument<String>("searchQuery") {
-        type = graphqlNonNull(GraphQLString)
+private val personsQuery = newField<List<Person>> {
+    name = "persons"
+    type = GraphQLList(personType)
+    fetcher = { succeeded(PersonRepository.allPersons()) }
+}
+
+private val listingSearchQuery = newField<List<SearchItem>> {
+    name = "listingSearch"
+    type = GraphQLList(searchItemType)
+    argument {
+        name = "searchQuery"
+        type = GraphQLNonNull(GraphQLString)
     }
-    dataFetcher = { env ->
-        val context = env.context as ApiRequestContext
-        context.searchController.searchListings(env.getArgument("searchQuery"), context.user)
+    fetcher = { env ->
+        val context = env.context<ApiRequestContext>()
+        context.searchController.searchListings(env.argument("searchQuery"), context.user)
     }
 }
 
-private val listingSearchQueryPaged = graphqlField<Connection<SearchItem>>("listingSearchPaged") {
-    type = relayConnectionType("Search") {
-        edgeType = relayEdgeType("Search") {
-            nodeType = searchItemType
-        }
-    }
-    argument<String>("searchQuery") {
-        type = graphqlNonNull(GraphQLString)
-    }
-    argument<Int>("first")
-    argument<Int>("last")
-    argument<String>("before")
-    argument<String>("after")
-    dataFetcher = { env ->
-        with(env.context as ApiRequestContext) {
-            searchController
-                    .searchListings(env.getArgument("searchQuery"), user)
-                    .thenApply { searchResult ->
-                        SimpleListConnection(searchResult).get(env)
-                    }
-        }
-    }
-}
+//private val listingSearchQueryPaged = newField<Connection<SearchItem>> {
+//    name = "listingSearchPaged"
+//    type = relayConnectionType("Search") {
+//        edgeType = relayEdgeType("Search") {
+//            nodeType = searchItemType
+//        }
+//    }
+//    argument<String>("searchQuery") {
+//        type = graphqlNonNull(GraphQLString)
+//    }
+//    argument<Int>("first")
+//    argument<Int>("last")
+//    argument<String>("before")
+//    argument<String>("after")
+//    dataFetcher = { env ->
+//        with(env.context as ApiRequestContext) {
+//            searchController
+//                    .searchListings(env.getArgument("searchQuery"), user)
+//                    .thenApply { searchResult ->
+//                        SimpleListConnection(searchResult).get(env)
+//                    }
+//        }
+//    }
+//}
 
 // Mutations
-private val personInputType = graphqlInputType("PersonInput") {
-    field<String>("socialSecurityId") {
-        type = graphqlNonNull(GraphQLInt)
+private val personInputType = newInputObject  {
+    name = "PersonInput"
+    field {
+        name = "socialSecurityId"
+        type = GraphQLNonNull(GraphQLInt)
     }
-    field<String>("firstName") {
-        type = graphqlNonNull(GraphQLString)
+    field {
+        name = "firstName"
+        type = GraphQLNonNull(GraphQLString)
     }
-    field<String>("lastName") {
-        type = graphqlNonNull(GraphQLString)
+    field {
+        name = "lastName"
+        type = GraphQLNonNull(GraphQLString)
     }
 }
 
-private val addPersonMutation = graphqlField<Person>("addPerson") {
+private val addPersonMutation = newField<Person> {
+    name = "addPerson"
     type = personType // output type!
-    argument<Person>("person") {
-        type = graphqlNonNull(personInputType)
+    argument {
+        name = "person"
+        type = GraphQLNonNull(personInputType)
     }
-    dataFetcher = { env ->
-        val person = env.getArgument<Map<String, Any>>("person")
+    fetcher = { env ->
+        val person = env.argument<Map<String, Any>>("person")
         val id: Int = person["socialSecurityId"] as Int
         val fn: String = person["firstName"] as String
         val ln: String = person["lastName"] as String
@@ -416,27 +449,31 @@ private val addPersonMutation = graphqlField<Person>("addPerson") {
     }
 }
 
-private val removePersonMutation = graphqlField<Person>("removePerson") {
+private val removePersonMutation = newField<Person> {
+    name = "removePerson"
     type = personType // output type!
-    argument<Int>("socialSecurityId") {
-        type = graphqlNonNull(GraphQLInt)
+    argument {
+        name = "socialSecurityId"
+        type = GraphQLNonNull(GraphQLInt)
     }
-    dataFetcher = { env ->
-        val id: Int = env.getArgument<Int>("socialSecurityId")
+    fetcher = { env ->
+        val id: Int = env.argument<Int>("socialSecurityId")
         succeeded(PersonRepository.removePerson(id))
     }
 }
 
 // Schema
-val schema = graphqlSchema {
-    queryType = graphqlType("QueryType") {
+val schema = newSchema {
+    query = newObject  {
+        name = "QueryType"
         field(listingQuery)
         field(organizationQuery)
         field(personsQuery)
         field(listingSearchQuery)
-        field(listingSearchQueryPaged)
+//        field(listingSearchQueryPaged)
     }
-    mutationType = graphqlType("MutationType") {
+    mutation = newObject  {
+        name = "MutationType"
         field(addPersonMutation)
         field(removePersonMutation)
     }

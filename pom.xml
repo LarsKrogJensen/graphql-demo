@@ -9,27 +9,27 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <vertx.version>3.4.0.Beta1</vertx.version>
+        <vertx.version>3.4.0</vertx.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <kotlin.version>1.1.0-rc-91</kotlin.version>
+        <kotlin.version>1.1.0</kotlin.version>
         <jackson.version>2.7.4</jackson.version>
         <encoding>UTF-8</encoding>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>kotlin-beta</id>
-            <url>http://dl.bintray.com/kotlin/kotlin-eap-1.1</url>
-        </repository>
-    </repositories>
+    <!--<repositories>-->
+        <!--<repository>-->
+            <!--<id>kotlin-beta</id>-->
+            <!--<url>http://dl.bintray.com/kotlin/kotlin-eap-1.1</url>-->
+        <!--</repository>-->
+    <!--</repositories>-->
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>kotlin-beta</id>
-            <url>http://dl.bintray.com/kotlin/kotlin-eap-1.1</url>
-        </pluginRepository>
-    </pluginRepositories>
+    <!--<pluginRepositories>-->
+        <!--<pluginRepository>-->
+            <!--<id>kotlin-beta</id>-->
+            <!--<url>http://dl.bintray.com/kotlin/kotlin-eap-1.1</url>-->
+        <!--</pluginRepository>-->
+    <!--</pluginRepositories>-->
     <dependencies>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -87,15 +87,9 @@
         </dependency>
 
         <dependency>
-            <groupId>se.lars.graphql-java</groupId>
-            <artifactId>graphql-java</artifactId>
-            <version>SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>slf4j-api</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-            </exclusions>
+            <groupId>se.lars</groupId>
+            <artifactId>graphql-kotlin</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
 
@@ -199,23 +193,14 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.testng</groupId>-->
-        <!--<artifactId>testng</artifactId>-->
-        <!--<version>6.9.10</version>-->
-        <!--</dependency>-->
+       
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-unit</artifactId>
             <version>${vertx.version}</version>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.mockito</groupId>-->
-        <!--<artifactId>mockito-all</artifactId>-->
-        <!--<version>1.10.19</version>-->
-        <!--<scope>test</scope>-->
-        <!--</dependency>-->
+     
         <!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
         <dependency>
             <groupId>org.mockito</groupId>
@@ -242,7 +227,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test</artifactId>
+            <artifactId>kotlin-test-junit</artifactId>
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>

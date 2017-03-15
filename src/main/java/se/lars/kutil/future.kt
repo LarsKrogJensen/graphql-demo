@@ -2,6 +2,7 @@ package se.lars.kutil
 
 import io.vertx.core.Context
 import io.vertx.core.Vertx
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
@@ -24,4 +25,18 @@ fun <T> CompletableFuture<T>.complete(result: T?, error: Throwable?) {
         completeExceptionally(error)
     else
         complete(result)
+}
+
+fun <T> succeeded(value: T) = CompletableFuture.completedFuture(value)
+
+fun <T> succeededNullable(value: T?) = CompletableFuture.completedFuture(value)
+
+
+fun <T> succeededOptional(optional: Optional<T>): CompletableFuture<T> {
+    return succeeded(if (optional.isPresent) optional.get() else null)
+}
+
+fun succeededOptionalInt(optional: OptionalInt): CompletableFuture<Int> {
+    return if (optional.isPresent) CompletableFuture.completedFuture(optional.asInt)
+    else CompletableFuture.completedFuture(null)
 }

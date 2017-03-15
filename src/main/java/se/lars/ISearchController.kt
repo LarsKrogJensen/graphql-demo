@@ -7,6 +7,5 @@ import java.util.concurrent.CompletionStage
 
 
 interface ISearchController {
-    fun searchListings(query: String,
-                       user: JWTUser): CompletionStage<List<SearchItem>>
+    fun searchListings(query: String, user: JWTUser): CompletionStage<List<SearchItem>>
 }

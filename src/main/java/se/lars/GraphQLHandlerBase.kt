@@ -1,6 +1,6 @@
 package se.lars
 
-import graphql.GraphQL
+import graphql.newGraphQL
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
@@ -12,6 +12,7 @@ import se.lars.kutil.jsonObject
 import se.lars.kutil.loggerFor
 import se.lars.kutil.thenOn
 import se.lars.schema.ApiRequestContext
+import se.lars.schema.ConsoleInstrumentation
 import se.lars.schema.schema
 import java.nio.charset.Charset
 
@@ -21,10 +22,8 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
     private val invalidUser = JWTUser()
 
     protected fun executeGraphQL(jsonText: String, user: User?, handler: (JsonObject) -> Unit): Unit {
-
-
         log.info("Query: \n" + jsonText)
-//        log.info("Charset: ${Charset.defaultCharset().name()}")
+        log.info("Charset: ${Charset.defaultCharset().name()}")
         // be a bit more forgiving
         val body = jsonText.replace('\n', ' ').replace('\t', ' ')
 
@@ -35,9 +34,9 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
             handler(jsonObject("errors" to "Invalid Json format"))
             return
         }
-        
 
-        val graphQL = GraphQL(schema)
+        val instrumentation = ConsoleInstrumentation()
+        val graphQL = newGraphQL(schema).instrumentation(instrumentation).build()
         val variables = json.getValue("variables").let {
             when (it) {
                 is JsonObject -> it.map
@@ -57,11 +56,14 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
                 .thenAccept { result ->
                     log.info("Completed")
                     val jsonResponse = if (result.succeeded()) {
-                        jsonObject("data" to result.data)
+                        jsonObject("data" to result.data())
                     } else {
                         jsonObject("errors" to result.errors)
                     }
 
+                    instrumentation.executionList.forEach {
+                        log.info(it)
+                    }
                     handler(jsonResponse)
                 }
     }
