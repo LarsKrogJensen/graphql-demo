@@ -2,6 +2,7 @@ package se.lars.schema
 
 import graphql.GraphQLInt
 import graphql.GraphQLString
+import graphql.relay.*
 import graphql.schema.*
 import se.lars.kutil.succeeded
 import se.lars.kutil.succeededOptional
@@ -354,7 +355,7 @@ private val listingQuery = newField<Listing> {
     }
     fetcher = { env ->
         val context = env.context<ApiRequestContext>()
-        context.apiController.listing(env.argument("id"), context.user)
+        context.apiController.listing(env.argument("id")!!, context.user)
     }
 }
 
@@ -368,7 +369,7 @@ private val organizationQuery = newField<Organization> {
     }
     fetcher = { env ->
         val context = env.context<ApiRequestContext>()
-        context.apiController.organization(env.argument("id"), context.user)
+        context.apiController.organization(env.argument("id")!!, context.user)
     }
 }
 
@@ -387,37 +388,36 @@ private val listingSearchQuery = newField<List<SearchItem>> {
     }
     fetcher = { env ->
         val context = env.context<ApiRequestContext>()
-        context.searchController.searchListings(env.argument("searchQuery"), context.user)
+        context.searchController.searchListings(env.argument("searchQuery")!!, context.user)
     }
 }
 
-//private val listingSearchQueryPaged = newField<Connection<SearchItem>> {
-//    name = "listingSearchPaged"
-//    type = relayConnectionType("Search") {
-//        edgeType = relayEdgeType("Search") {
-//            nodeType = searchItemType
-//        }
-//    }
-//    argument<String>("searchQuery") {
-//        type = graphqlNonNull(GraphQLString)
-//    }
-//    argument<Int>("first")
-//    argument<Int>("last")
-//    argument<String>("before")
-//    argument<String>("after")
-//    dataFetcher = { env ->
-//        with(env.context as ApiRequestContext) {
-//            searchController
-//                    .searchListings(env.getArgument("searchQuery"), user)
-//                    .thenApply { searchResult ->
-//                        SimpleListConnection(searchResult).get(env)
-//                    }
-//        }
-//    }
-//}
+private val listingSearchQueryPaged = newField<Connection<SearchItem>> {
+    name = "listingSearchPaged"
+    type = connectionType<SearchItem> {
+        baseName = "Search"
+        edgeType = edgeType<SearchItem> {
+            baseName = "Search"
+            nodeType = searchItemType
+        }
+    }
+    argument {
+        name = "searchQuery"
+        type = GraphQLNonNull(GraphQLString)
+    }
+    arguments += connectionFieldArguments
+    fetcher = { env ->
+        with(env.context<ApiRequestContext>()) {
+            searchController.searchListings(env.argument<String>("searchQuery")!!, user)
+                    .thenApply { searchResult ->
+                        SimpleListConnection(searchResult).get(env)
+                    }
+        }
+    }
+}
 
 // Mutations
-private val personInputType = newInputObject  {
+private val personInputType = newInputObject {
     name = "PersonInput"
     field {
         name = "socialSecurityId"
@@ -441,7 +441,7 @@ private val addPersonMutation = newField<Person> {
         type = GraphQLNonNull(personInputType)
     }
     fetcher = { env ->
-        val person = env.argument<Map<String, Any>>("person")
+        val person = env.argument<Map<String, Any>>("person")!!
         val id: Int = person["socialSecurityId"] as Int
         val fn: String = person["firstName"] as String
         val ln: String = person["lastName"] as String
@@ -457,22 +457,22 @@ private val removePersonMutation = newField<Person> {
         type = GraphQLNonNull(GraphQLInt)
     }
     fetcher = { env ->
-        val id: Int = env.argument<Int>("socialSecurityId")
+        val id: Int = env.argument<Int>("socialSecurityId")!!
         succeeded(PersonRepository.removePerson(id))
     }
 }
 
 // Schema
 val schema = newSchema {
-    query = newObject  {
+    query = newObject {
         name = "QueryType"
-        field(listingQuery)
-        field(organizationQuery)
-        field(personsQuery)
-        field(listingSearchQuery)
-//        field(listingSearchQueryPaged)
+        fields += listingQuery
+        fields += organizationQuery
+        fields += personsQuery
+        fields += listingSearchQuery
+        fields += listingSearchQueryPaged
     }
-    mutation = newObject  {
+    mutation = newObject {
         name = "MutationType"
         field(addPersonMutation)
         field(removePersonMutation)
