@@ -64,7 +64,8 @@ constructor(vertx: Vertx) : ISearchController {
                                     .fold(mutableListOf<SearchItem>()) { list, item ->
                                         list.add(item)
                                         list
-                                    }.complete(future)
+                                    }.
+                                    complete(future)
                         }
                     } else {
                         future.completeExceptionally(Exception(response.statusMessage()))

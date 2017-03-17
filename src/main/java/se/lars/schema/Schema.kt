@@ -409,9 +409,7 @@ private val listingSearchQueryPaged = newField<Connection<SearchItem>> {
     fetcher = { env ->
         with(env.context<ApiRequestContext>()) {
             searchController.searchListings(env.argument<String>("searchQuery")!!, user)
-                    .thenApply { searchResult ->
-                        SimpleListConnection(searchResult).get(env)
-                    }
+                    .thenApply { SimpleListConnection(it).fetch(env) }
         }
     }
 }
