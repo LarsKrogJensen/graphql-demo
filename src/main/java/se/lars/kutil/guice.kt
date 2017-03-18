@@ -7,7 +7,7 @@ import io.vertx.core.DeploymentOptions
 import java.util.logging.Logger
 import java.util.ArrayList
 
-public abstract class ModuleBase : AbstractModule() {
+abstract class ModuleBase : AbstractModule() {
 
     protected inline fun <reified T : Any> bind(): AnnotatedBindingBuilder<T> {
         return this.bind(T::class.java)!!

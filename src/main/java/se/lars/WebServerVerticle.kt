@@ -1,32 +1,22 @@
 package se.lars
 
-import io.vertx.core.*
+import io.vertx.core.AbstractVerticle
+import io.vertx.core.Future
 import io.vertx.core.http.HttpMethod
-import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.json.JsonObject
 import io.vertx.core.net.PemKeyCertOptions
-import io.vertx.core.shareddata.SharedData
-import io.vertx.ext.auth.*
 import io.vertx.ext.auth.jwt.JWTAuth
-import io.vertx.ext.auth.jwt.impl.JWTUser
-import io.vertx.ext.web.Router
-import io.vertx.ext.web.handler.*
-import io.vertx.ext.web.handler.impl.StaticHandlerImpl
-import io.vertx.ext.web.sstore.LocalSessionStore
-import io.vertx.rx.java.RxHelper
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import io.vertx.ext.web.handler.BodyHandler
+import io.vertx.ext.web.handler.CorsHandler
+import io.vertx.ext.web.handler.JWTAuthHandler
+import io.vertx.ext.web.handler.StaticHandler
 import se.lars.accesslog.AccessLogHandler
 import se.lars.auth.JWTAuthenticator
-import se.lars.auth.HybridAuthHandler
 import se.lars.chat.ChatSystemHandler
 import se.lars.kutil.loggerFor
 import se.lars.kutil.router
-
 import javax.inject.Inject
-import java.util.Objects
-import java.util.Optional
 
 
 class WebServerVerticle
@@ -37,16 +27,15 @@ constructor(private val _graphQLHandler: GraphQLHandler,
             private val _apiController: IApiController) : AbstractVerticle() {
     private val _log = loggerFor<WebServerVerticle>()
 
-    @Throws(Exception::class)
     override fun start(startFuture: Future<Void>) {
         val options = HttpServerOptions().apply {
             isCompressionSupported = true
-            /* isUseAlpn = true
-             isSsl = true
-             setPemKeyCertOptions(PemKeyCertOptions().apply {
-                 keyPath = "tls/server-key.pem"se
-                 certPath = "tls/server-cert.pem"
-             })*/
+            isUseAlpn = true
+            isSsl = true
+            pemKeyCertOptions = PemKeyCertOptions().apply {
+                keyPath = "tls/server-key.pem"
+                certPath = "tls/server-cert.pem"
+            }
         }
 
 //        Optional.ofNullable("lars").als {  }
@@ -77,7 +66,7 @@ constructor(private val _graphQLHandler: GraphQLHandler,
             route("/graphql").handler(_graphQLHandler)
             route("/graphqlws").handler(_graphQLHandlerWs)
 
-            
+
             route("/*").handler(StaticHandler.create().setCachingEnabled(false))
         }
 

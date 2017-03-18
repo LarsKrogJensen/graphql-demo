@@ -61,9 +61,9 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
                         jsonObject("errors" to result.errors)
                     }
 
-                    instrumentation.executionList.forEach {
-                        log.info(it)
-                    }
+//                    instrumentation.executionList.forEach {
+//                        log.info(it)
+//                    }
                     handler(jsonResponse)
                 }
     }
