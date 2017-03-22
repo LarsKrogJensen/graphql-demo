@@ -2,6 +2,7 @@ package se.lars.auth
 
 import io.vertx.core.AsyncResult
 import io.vertx.core.Future
+import io.vertx.core.Future.*
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
@@ -22,9 +23,9 @@ constructor(private val _api: IApiController) : AuthProvider {
                 .thenOn(Vertx.currentContext())
                 .thenAccept { apiUser ->
                     if (apiUser != null)
-                        handler.handle(Future.succeededFuture<User>(apiUser))
+                        handler.handle(succeededFuture<User>(apiUser))
                     else
-                        handler.handle(Future.failedFuture<User>("jksksks"))
+                        handler.handle(failedFuture<User>("jksksks"))
                 }
     }
 

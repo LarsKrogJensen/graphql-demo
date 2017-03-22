@@ -21,4 +21,31 @@ fun Json.array_(values: List<Any?>): JsonArray = JsonArray(values)
 
 inline fun <T> json_(block: Json.() -> T): T = Json.block()
 
-@Suppress("UNCHECKED_CAST") fun <T> JsonObject.get(key: String): T = getValue(key) as T
+//@Suppress("UNCHECKED_CAST") fun <T> JsonObject.get(key: String): T = getValue(key) as T
+
+fun JsonObject.resolveInt(path: String) : Int? {
+    if (this.containsKey(path))
+        return this.getInteger(path)
+
+    return traversePath(this, path.split("."))
+}
+
+fun JsonObject.resolveBool(path: String) : Boolean? {
+    if (this.containsKey(path))
+        return this.getBoolean(path)
+
+    return traversePath(this, path.split("."))
+}
+
+private fun <T :Any> traversePath(jsonObject: JsonObject, path: List<String>): T? {
+    if (path.size > 1) {
+        return traversePath<T>(jsonObject.getJsonObject(path[0]), path.drop(1))
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    if (jsonObject.containsKey(path[0])) {
+        return jsonObject.getValue(path[0]) as T
+    }
+
+    return null
+}

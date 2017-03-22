@@ -18,17 +18,17 @@
     </properties>
 
     <!--<repositories>-->
-        <!--<repository>-->
-            <!--<id>kotlin-beta</id>-->
-            <!--<url>http://dl.bintray.com/kotlin/kotlin-eap-1.1</url>-->
-        <!--</repository>-->
+    <!--<repository>-->
+    <!--<id>kotlin-beta</id>-->
+    <!--<url>http://dl.bintray.com/kotlin/kotlin-eap-1.1</url>-->
+    <!--</repository>-->
     <!--</repositories>-->
 
     <!--<pluginRepositories>-->
-        <!--<pluginRepository>-->
-            <!--<id>kotlin-beta</id>-->
-            <!--<url>http://dl.bintray.com/kotlin/kotlin-eap-1.1</url>-->
-        <!--</pluginRepository>-->
+    <!--<pluginRepository>-->
+    <!--<id>kotlin-beta</id>-->
+    <!--<url>http://dl.bintray.com/kotlin/kotlin-eap-1.1</url>-->
+    <!--</pluginRepository>-->
     <!--</pluginRepositories>-->
     <dependencies>
         <dependency>
@@ -48,12 +48,24 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-config</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-config-yaml</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/io.vertx/vertx-auth-jwt -->
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-auth-jwt</artifactId>
             <version>${vertx.version}</version>
         </dependency>
+
 
         <dependency>
             <groupId>io.netty</groupId>
@@ -70,24 +82,24 @@
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.intapp/vertx-guice -->
-        <dependency>
-            <groupId>com.intapp</groupId>
-            <artifactId>vertx-guice</artifactId>
-            <version>1.0</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>vertx-core</artifactId>
-                    <groupId>io.vertx</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>guice</artifactId>
-                    <groupId>com.google.inject</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>com.intapp</groupId>-->
+        <!--<artifactId>vertx-guice</artifactId>-->
+        <!--<version>1.0</version>-->
+        <!--<exclusions>-->
+        <!--<exclusion>-->
+        <!--<artifactId>vertx-core</artifactId>-->
+        <!--<groupId>io.vertx</groupId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<artifactId>guice</artifactId>-->
+        <!--<groupId>com.google.inject</groupId>-->
+        <!--</exclusion>-->
+        <!--</exclusions>-->
+        <!--</dependency>-->
 
         <dependency>
-            <groupId>se.lars</groupId>
+            <groupId>com.graphql-kotlin</groupId>
             <artifactId>graphql-kotlin</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
@@ -156,10 +168,6 @@
                     <artifactId>guava</artifactId>
                     <groupId>com.google.guava</groupId>
                 </exclusion>
-                <exclusion>
-                    <artifactId>jackson-annotations</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
             </exclusions>
         </dependency>
 
@@ -193,14 +201,14 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
-       
+
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-unit</artifactId>
             <version>${vertx.version}</version>
             <scope>test</scope>
         </dependency>
-     
+
         <!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
         <dependency>
             <groupId>org.mockito</groupId>

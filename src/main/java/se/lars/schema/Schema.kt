@@ -461,7 +461,7 @@ private val removePersonMutation = newField<Person> {
 }
 
 // Schema
-val schema = newSchema {
+val marketDataSchema = newSchema {
     query = newObject {
         name = "QueryType"
         fields += listingQuery

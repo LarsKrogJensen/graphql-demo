@@ -15,30 +15,37 @@ import se.lars.accesslog.AccessLogHandler
 import se.lars.auth.JWTAuthenticator
 import se.lars.chat.ChatSystemHandler
 import se.lars.kutil.loggerFor
+import se.lars.kutil.resolveBool
+import se.lars.kutil.resolveInt
 import se.lars.kutil.router
 import javax.inject.Inject
+import javax.inject.Named
 
 
 class WebServerVerticle
 @Inject
-constructor(private val _graphQLHandler: GraphQLHandler,
-            private val _graphQLHandlerWs: GraphQLHandlerOverWS,
-            private val _chatHandler: ChatSystemHandler,
-            private val _apiController: IApiController) : AbstractVerticle() {
+constructor(
+        @Named("config")
+        private val _config: JsonObject,
+        private val _graphQLHandler: GraphQLHandler,
+        private val _graphQLHandlerWs: GraphQLHandlerOverWS,
+        private val _chatHandler: ChatSystemHandler,
+        private val _apiController: IApiController) : AbstractVerticle() {
     private val _log = loggerFor<WebServerVerticle>()
 
     override fun start(startFuture: Future<Void>) {
         val options = HttpServerOptions().apply {
             isCompressionSupported = true
-            isUseAlpn = true
-            isSsl = true
-            pemKeyCertOptions = PemKeyCertOptions().apply {
-                keyPath = "tls/server-key.pem"
-                certPath = "tls/server-cert.pem"
+            if (_config.resolveBool("http.useSsl") ?: false) {
+                isUseAlpn = true
+                isSsl = true
+                pemKeyCertOptions = PemKeyCertOptions().apply {
+                    keyPath = "tls/server-key.pem"
+                    certPath = "tls/server-cert.pem"
+                }
             }
         }
 
-//        Optional.ofNullable("lars").als {  }
         // configure cross domain access
         val corsHandler = with(CorsHandler.create("*")) {
             allowCredentials(true)
@@ -46,12 +53,12 @@ constructor(private val _graphQLHandler: GraphQLHandler,
             allowedHeaders(setOf("content-type", "authorization"))
         }
 
-        val config = JsonObject().put("keyStore", JsonObject()
+        val keystoreConfig = JsonObject().put("keyStore", JsonObject()
                 .put("path", "keystore.jceks")
                 .put("type", "jceks")
                 .put("password", "secret"))
 
-        val provider = JWTAuth.create(vertx, config)
+        val provider = JWTAuth.create(vertx, keystoreConfig)
 
         val router = router(vertx) {
             route().handler(AccessLogHandler.create("%r %s \"%{Content-Type}o\" %D %T %B"))
@@ -70,16 +77,18 @@ constructor(private val _graphQLHandler: GraphQLHandler,
             route("/*").handler(StaticHandler.create().setCachingEnabled(false))
         }
 
+        val port: Int = _config.resolveInt("http.port") ?: 8080
+
         vertx.createHttpServer(options)
                 .requestHandler { router.accept(it) }
-                .listen(System.getenv("PORT")?.toInt() ?: 8080) {
+                .listen(port) {
                     when (it.succeeded()) {
                         true  -> {
                             _log.info("Http service started. on port " + it.result().actualPort())
                             startFuture.succeeded()
                         }
                         false -> {
-                            _log.info("Http service failed to started.")
+                            _log.error("Http service failed to started.")
                             startFuture.fail(it.cause())
                         }
                     }

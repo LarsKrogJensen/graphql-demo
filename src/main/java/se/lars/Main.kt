@@ -1,38 +1,53 @@
 package se.lars
 
 import com.google.inject.Guice
-import com.google.inject.Injector
-import com.intapp.vertx.guice.*
-import io.vertx.core.*
-import se.lars.chat.*
+import io.vertx.config.ConfigRetriever
+import io.vertx.core.DeploymentOptions
+import io.vertx.core.Vertx
+import io.vertx.kotlin.config.ConfigRetrieverOptions
+import io.vertx.kotlin.config.ConfigStoreOptions
+import se.lars.chat.ChatRoomVerticle
 import se.lars.codec.KryoCodec
-import se.lars.kutil.deploy
+import se.lars.guice.GuiceVerticleFactory
+import se.lars.guice.GuiceVertxDeploymentManager
+import se.lars.guice.VertxModule
+import se.lars.guice.deploy
+import se.lars.kutil.jsonObject
 
-object Main {
-    @Throws(Exception::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        System.setProperty("vertx.logger-delegate-factory-class-name",
-                "io.vertx.core.logging.SLF4JLogDelegateFactory")
+fun main(args: Array<String>) {
+    System.setProperty("vertx.logger-delegate-factory-class-name",
+                       "io.vertx.core.logging.SLF4JLogDelegateFactory")
 
-        val vertx = Vertx.vertx()
+    val vertx = Vertx.vertx()
 
-        val injector = Guice.createInjector(BootstrapModule(), VertxModule(vertx))
-        vertx.registerVerticleFactory(GuiceVerticleFactory(injector))
-        KryoCodec.resolveKryoAwareClasses("se.lars.chat")
-                .map { type -> type }
-                .forEach { type ->
-                    println("Registering kryocodec " + type)
-                    vertx.eventBus().registerDefaultCodec(type, KryoCodec(type))
-                }
+    val options = ConfigRetrieverOptions(stores = listOf(
+            ConfigStoreOptions(type = "file",
+                               format = "yaml",
+                               config = jsonObject("path" to args[0])),
+            ConfigStoreOptions(type = "sys"),
+            ConfigStoreOptions(type = "env")
+    ))
 
+    ConfigRetriever.create(vertx, options).getConfig { result ->
+        if (result.failed()) {
+            throw RuntimeException("Failed to read config", result.cause())
+        } else {
+            val injector = Guice.createInjector(BootstrapModule(result.result()), VertxModule(vertx))
 
-        val wsOptions = DeploymentOptions().setInstances(8)
+            vertx.registerVerticleFactory(GuiceVerticleFactory(injector))
+            KryoCodec.resolveKryoAwareClasses("se.lars.chat")
+                    .forEach { vertx.eventBus().registerDefaultCodec(it, KryoCodec(it)) }
 
-        GuiceVertxDeploymentManager(vertx).apply {
-            deploy<WebServerVerticle>(wsOptions)
-            deploy<ChatRoomVerticle>()
+            val cores = Runtime.getRuntime().availableProcessors()
+            val wsOptions = DeploymentOptions().setInstances(cores)
+
+            GuiceVertxDeploymentManager(vertx).apply {
+                deploy<WebServerVerticle>(wsOptions)
+                deploy<ChatRoomVerticle>()
+            }
         }
     }
+
+
 }
 

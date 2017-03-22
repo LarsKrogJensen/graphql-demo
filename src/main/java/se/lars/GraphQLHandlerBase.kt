@@ -13,13 +13,13 @@ import se.lars.kutil.loggerFor
 import se.lars.kutil.thenOn
 import se.lars.schema.ApiRequestContext
 import se.lars.schema.ConsoleInstrumentation
-import se.lars.schema.schema
+import se.lars.schema.marketDataSchema
 import java.nio.charset.Charset
 
 abstract class GraphQLHandlerBase(private val apiController: IApiController,
                                   private val searchController: ISearchController) : Handler<RoutingContext> {
     val log = loggerFor<GraphQLHandlerBase>()
-    private val invalidUser = JWTUser()
+    private val invalidUser = JWTUser(jsonObject(), "")
 
     protected fun executeGraphQL(jsonText: String, user: User?, handler: (JsonObject) -> Unit): Unit {
         log.info("Query: \n" + jsonText)
@@ -35,8 +35,12 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
             return
         }
 
-        val instrumentation = ConsoleInstrumentation()
-        val graphQL = newGraphQL(schema).instrumentation(instrumentation).build()
+
+        val graphQL = newGraphQL {
+            schema = marketDataSchema
+            instrumentation = ConsoleInstrumentation()
+        }
+
         val variables = json.getValue("variables").let {
             when (it) {
                 is JsonObject -> it.map
@@ -47,24 +51,20 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
         val query = json.getString("query")
         val operation: String? = json.getString("operationName")
 
-        val context = ApiRequestContext(user?.cast<JWTUser>(invalidUser) ?: invalidUser,
+        val context = ApiRequestContext(user?.cast<JWTUser>() ?: invalidUser,
                                         ApiControllerRequestScoop(apiController),
                                         searchController)
 
         graphQL.execute(query, operation, context, variables)
                 .thenOn(Vertx.currentContext())
                 .thenAccept { result ->
-                    log.info("Completed")
                     val jsonResponse = if (result.succeeded()) {
                         jsonObject("data" to result.data())
                     } else {
                         jsonObject("errors" to result.errors)
                     }
-
-//                    instrumentation.executionList.forEach {
-//                        log.info(it)
-//                    }
                     handler(jsonResponse)
                 }
     }
 }
+
