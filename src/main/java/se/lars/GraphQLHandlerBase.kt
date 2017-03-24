@@ -20,6 +20,7 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
                                   private val searchController: ISearchController) : Handler<RoutingContext> {
     val log = loggerFor<GraphQLHandlerBase>()
     private val invalidUser = JWTUser(jsonObject(), "")
+    private val cache = ApiControllerRequestScoop(apiController)
 
     protected fun executeGraphQL(jsonText: String, user: User?, handler: (JsonObject) -> Unit): Unit {
         log.info("Query: \n" + jsonText)
@@ -52,7 +53,8 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
         val operation: String? = json.getString("operationName")
 
         val context = ApiRequestContext(user?.cast<JWTUser>() ?: invalidUser,
-                                        ApiControllerRequestScoop(apiController),
+//                                        ApiControllerRequestScoop(apiController),
+                                        cache,
                                         searchController)
 
         graphQL.execute(query, operation, context, variables)

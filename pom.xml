@@ -5,31 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>se.lars</groupId>
-    <artifactId>vertx.core.sample1</artifactId>
+    <artifactId>larkks-gql</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
         <vertx.version>3.4.1</vertx.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <kotlin.version>1.1.0</kotlin.version>
+        <kotlin.version>1.1.1</kotlin.version>
         <jackson.version>2.7.4</jackson.version>
         <encoding>UTF-8</encoding>
     </properties>
 
-    <!--<repositories>-->
-    <!--<repository>-->
-    <!--<id>kotlin-beta</id>-->
-    <!--<url>http://dl.bintray.com/kotlin/kotlin-eap-1.1</url>-->
-    <!--</repository>-->
-    <!--</repositories>-->
-
-    <!--<pluginRepositories>-->
-    <!--<pluginRepository>-->
-    <!--<id>kotlin-beta</id>-->
-    <!--<url>http://dl.bintray.com/kotlin/kotlin-eap-1.1</url>-->
-    <!--</pluginRepository>-->
-    <!--</pluginRepositories>-->
     <dependencies>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -41,12 +28,7 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-rx-java</artifactId>
             <version>${vertx.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>rxjava</artifactId>
-                    <groupId>io.reactivex</groupId>
-                </exclusion>
-            </exclusions>
+
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -65,13 +47,43 @@
             <artifactId>vertx-auth-jwt</artifactId>
             <version>${vertx.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-dropwizard-metrics</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
 
 
+        <!-- https://mvnrepository.com/artifact/com.github.davidb/metrics-influxdb -->
+        <dependency>
+            <groupId>com.github.davidb</groupId>
+            <artifactId>metrics-influxdb</artifactId>
+            <version>0.9.3</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.codahale.metrics/metrics-jvm -->
+        <dependency>
+            <groupId>com.codahale.metrics</groupId>
+            <artifactId>metrics-jvm</artifactId>
+            <version>3.0.2</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-tcnative-boringssl-static</artifactId>
-            <version>1.1.33.Fork25</version>
-            <!--<classifier>windows-x86_64</classifier>-->
+            <version>1.1.33.Fork26</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.google.inject/guice -->
@@ -81,22 +93,6 @@
             <version>4.1.0</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.intapp/vertx-guice -->
-        <!--<dependency>-->
-        <!--<groupId>com.intapp</groupId>-->
-        <!--<artifactId>vertx-guice</artifactId>-->
-        <!--<version>1.0</version>-->
-        <!--<exclusions>-->
-        <!--<exclusion>-->
-        <!--<artifactId>vertx-core</artifactId>-->
-        <!--<groupId>io.vertx</groupId>-->
-        <!--</exclusion>-->
-        <!--<exclusion>-->
-        <!--<artifactId>guice</artifactId>-->
-        <!--<groupId>com.google.inject</groupId>-->
-        <!--</exclusion>-->
-        <!--</exclusions>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>com.graphql-kotlin</groupId>
@@ -104,15 +100,12 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
-
-        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.22</version>
+            <version>1.7.25</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-core -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -125,14 +118,12 @@
             </exclusions>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/io.reactivex/rxjava -->
         <dependency>
             <groupId>io.reactivex</groupId>
             <artifactId>rxjava</artifactId>
-            <version>1.2.5</version>
+            <version>1.2.7</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.immutables/value -->
         <dependency>
             <groupId>org.immutables</groupId>
             <artifactId>value</artifactId>
@@ -140,7 +131,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.jooq/joox -->
         <dependency>
             <groupId>org.jooq</groupId>
             <artifactId>joox</artifactId>
@@ -155,7 +145,7 @@
 
         <dependency>
             <groupId>com.esotericsoftware</groupId>
-            <artifactId>kryo-shaded</artifactId>
+            <artifactId>kryo</artifactId>
             <version>4.0.0</version>
         </dependency>
 
@@ -212,8 +202,8 @@
         <!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>2.0.2-beta</version>
+            <artifactId>mockito-core</artifactId>
+            <version>2.7.19</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.spockframework/spock-core -->
@@ -279,7 +269,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <mainClass>se.lars.Main</mainClass>
+                            <mainClass>se.lars.MainKt</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
