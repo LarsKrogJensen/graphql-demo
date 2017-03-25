@@ -59,6 +59,7 @@ public class OtherServiceTest
 
         TestSubscriber<String> testSubscriber = new TestSubscriber<>();
         _classUnderTest.doSomething().subscribe(testSubscriber);
+        testSubscriber.awaitTerminalEvent();
         testSubscriber.assertNoErrors();
         testSubscriber.assertCompleted();
         testSubscriber.assertReceivedOnNext(Arrays.asList("lars", "krog-jensen"));
