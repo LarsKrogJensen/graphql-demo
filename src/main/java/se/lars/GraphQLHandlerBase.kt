@@ -1,5 +1,6 @@
 package se.lars
 
+import graphql.GraphQLError
 import graphql.newGraphQL
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
@@ -69,10 +70,14 @@ abstract class GraphQLHandlerBase(
                     val jsonResponse = if (result.succeeded()) {
                         jsonObject("data" to result.data())
                     } else {
-                        jsonObject("errors" to result.errors)
+                        jsonObject("errors" to deccodeErrors(result.errors))
                     }
                     handler(jsonResponse)
                 }
+    }
+
+    fun deccodeErrors(errors: List<GraphQLError>): Any? {
+        return errors
     }
 }
 

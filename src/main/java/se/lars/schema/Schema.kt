@@ -390,7 +390,8 @@ private val listingSearchQuery = newField<List<SearchItem>> {
         type = GraphQLNonNull(GraphQLString)
     }
     fetcher = { env ->
-        env.context<ApiRequestContext>().eventBus
+        env.context<ApiRequestContext>()
+                .eventBus
                 .sendWithReply<SearchQuery, SearchResult>(SearchQuery(env.argument("searchQuery")!!))
                 .thenApply { it.result }
     }

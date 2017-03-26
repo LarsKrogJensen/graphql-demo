@@ -21,7 +21,6 @@ import se.lars.types.OrderBook
 import se.lars.types.Organization
 import se.lars.types.Quotes
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
 import javax.inject.Inject
 
 class ApiController
@@ -58,23 +57,23 @@ constructor(_vertx: Vertx) : IApiController {
 
     }
 
-    override fun listing(listingId: String, usr: JWTUser): CompletionStage<Listing> {
+    override fun listing(listingId: String, usr: JWTUser): CompletableFuture<Listing> {
         return invokeQuery("/v2/listings/" + listingId, Listing::class.java, usr)
     }
 
-    override fun organization(organizationId: String, usr: JWTUser): CompletionStage<Organization> {
+    override fun organization(organizationId: String, usr: JWTUser): CompletableFuture<Organization> {
         return invokeQuery("/v2/organizations/" + organizationId, Organization::class.java, usr)
     }
 
-    override fun listingQuotes(listingId: String, usr: JWTUser): CompletionStage<Quotes> {
+    override fun listingQuotes(listingId: String, usr: JWTUser): CompletableFuture<Quotes> {
         return invokeQuery("/v2/listings/$listingId/quotes", Quotes::class.java, usr)
     }
 
-    override fun listingOrderBook(listingId: String, usr: JWTUser): CompletionStage<OrderBook> {
+    override fun listingOrderBook(listingId: String, usr: JWTUser): CompletableFuture<OrderBook> {
         return invokeQuery("/v2/listings/$listingId/orderbook", OrderBook::class.java, usr)
     }
 
-    override fun authenticate(clientId: String, clientSecret: String): CompletionStage<ApiUser> {
+    override fun authenticate(clientId: String, clientSecret: String): CompletableFuture<ApiUser> {
         val future = CompletableFuture<ApiUser>()
 
         val requestBody = jsonObject("client_id" to clientId,
