@@ -2,5 +2,8 @@
   "http": {
     "port": 8080,
     "useSsl": false
+  },
+  "metrics": {
+    "enabled": false
   }
 }

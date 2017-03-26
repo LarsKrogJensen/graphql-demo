@@ -4,9 +4,12 @@ import graphql.GraphQLInt
 import graphql.GraphQLString
 import graphql.relay.*
 import graphql.schema.*
+import se.lars.kutil.sendWithReply
 import se.lars.kutil.succeeded
 import se.lars.kutil.succeededOptional
 import se.lars.kutil.succeededOptionalInt
+import se.lars.messages.SearchQuery
+import se.lars.messages.SearchResult
 import se.lars.types.*
 import java.util.*
 
@@ -387,8 +390,9 @@ private val listingSearchQuery = newField<List<SearchItem>> {
         type = GraphQLNonNull(GraphQLString)
     }
     fetcher = { env ->
-        val context = env.context<ApiRequestContext>()
-        context.searchController.searchListings(env.argument("searchQuery")!!, context.user)
+        env.context<ApiRequestContext>().eventBus
+                .sendWithReply<SearchQuery, SearchResult>(SearchQuery(env.argument("searchQuery")!!))
+                .thenApply { it.result }
     }
 }
 

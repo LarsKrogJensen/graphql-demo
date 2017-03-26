@@ -1,6 +1,5 @@
 package se.lars.auth
 
-import com.fasterxml.jackson.databind.util.JSONPObject
 import io.vertx.core.Handler
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.jwt.JWTAuth

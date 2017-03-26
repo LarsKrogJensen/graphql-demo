@@ -3,8 +3,8 @@ package se.lars
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.http.HttpMethod
+import io.vertx.core.http.HttpServer
 import io.vertx.core.http.HttpServerOptions
-import io.vertx.core.json.JsonObject
 import io.vertx.core.net.PemKeyCertOptions
 import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.web.handler.BodyHandler
@@ -14,29 +14,28 @@ import io.vertx.ext.web.handler.StaticHandler
 import se.lars.accesslog.AccessLogHandler
 import se.lars.auth.JWTAuthenticator
 import se.lars.chat.ChatSystemHandler
+import se.lars.kutil.jsonObject
 import se.lars.kutil.loggerFor
-import se.lars.kutil.resolveBool
-import se.lars.kutil.resolveInt
 import se.lars.kutil.router
 import javax.inject.Inject
-import javax.inject.Named
 
 
 class WebServerVerticle
 @Inject
 constructor(
-        @Named("config")
-        private val _config: JsonObject,
+        private val _serverOptions: IServerOptions,
         private val _graphQLHandler: GraphQLHandler,
         private val _graphQLHandlerWs: GraphQLHandlerOverWS,
         private val _chatHandler: ChatSystemHandler,
         private val _apiController: IApiController) : AbstractVerticle() {
+
     private val _log = loggerFor<WebServerVerticle>()
+    private lateinit var httpServer: HttpServer
 
     override fun start(startFuture: Future<Void>) {
         val options = HttpServerOptions().apply {
             isCompressionSupported = true
-            if (_config.resolveBool("http.useSsl") ?: false) {
+            if (_serverOptions.useSsl) {
                 isUseAlpn = true
                 isSsl = true
                 pemKeyCertOptions = PemKeyCertOptions().apply {
@@ -53,10 +52,9 @@ constructor(
             allowedHeaders(setOf("content-type", "authorization"))
         }
 
-        val keystoreConfig = JsonObject().put("keyStore", JsonObject()
-                .put("path", "keystore.jceks")
-                .put("type", "jceks")
-                .put("password", "secret"))
+        val keystoreConfig = jsonObject("keyStore" to jsonObject("path" to "keystore.jceks",
+                                                                 "type" to "jceks",
+                                                                 "password" to "secret"))
 
         val provider = JWTAuth.create(vertx, keystoreConfig)
 
@@ -74,11 +72,9 @@ constructor(
             route("/*").handler(StaticHandler.create().setCachingEnabled(false))
         }
 
-        val port: Int = _config.resolveInt("http.port") ?: 8080
-
-        vertx.createHttpServer(options)
+        httpServer = vertx.createHttpServer(options)
                 .requestHandler { router.accept(it) }
-                .listen(port) {
+                .listen(_serverOptions.httpPort) {
                     when (it.succeeded()) {
                         true  -> {
                             _log.info("Http service started. on port " + it.result().actualPort())
@@ -91,92 +87,13 @@ constructor(
                     }
                 }
     }
+
+    override fun stop(stopFuture: Future<Void>) {
+        _log.info("Stopping Http service...")
+        httpServer.close {
+            _log.info("Http service stopped")
+            stopFuture.complete()
+        }
+
+    }
 }
-
-//router.route("/hello")
-//      .produces("application/json")
-//      .handler(rc -> {
-//          System.out.println("HttpVersion: " + rc.request().version());
-//          System.out.println("Handling hello on thread: " + Thread.currentThread().getName());
-//          _sharedData.getCounter("counter", event -> {
-//              System.out.println("Handling counter on thread: " + Thread.currentThread().getName());
-//              //Counter counter = event.result();
-//              //counter.addAndGet(1, res -> {
-//              //    System.out.println("Handling counterAdd on thread: " + Thread.currentThread().getName() + ", counter: " + res.result());
-//              //    rc.response()
-//              //      .end(new JsonObject().put("greeting", "Hello World").encode());
-//              //});
-//
-//              //_service.getData()
-//              //    .whenComplete((stream, throwable) -> {
-//              //       _vertx.getOrCreateContext().runOnContext(event1 -> {
-//              //           System.out.println("Is on event loop thread: "+ Context.isOnEventLoopThread());
-//              //           System.out.println("Is on vertx thread: "+ Context.isOnVertxThread());
-//              //           System.out.println("Is on worker context: "+ Context.isOnWorkerThread());
-//              //           System.out.println("Completed hello on thread: " + Thread.currentThread().getName());
-//              //
-//              //           rc.response().end(stream.collect(JsonArray::new, JsonArray::add, JsonArray::addAll).encode());
-//              //       });
-//              //    });
-//
-//              //_service.getData2()
-//              //        .collect(JsonArray::new, JsonArray::add)
-//              //        .map(JsonArray::encode)
-//              //        .observeOn(RxHelper.scheduler(_vertx.getOrCreateContext()))
-//              //        .subscribe(json -> {
-//              //            System.out.println("Is on event loop thread: " + Context.isOnEventLoopThread());
-//              //            System.out.println("Is on vertx thread: " + Context.isOnVertxThread());
-//              //            System.out.println("Is on worker context: " + Context.isOnWorkerThread());
-//              //            System.out.println("Completed hello on thread: " + Thread.currentThread().getName());
-//              //
-//              //            rc.response().end(json);
-//              //        });
-//
-//              _service.getData3()
-//                      .observeOn(RxHelper.scheduler(_vertx.getOrCreateContext()))
-//                      .subscribe(json -> {
-//                          System.out.println("Is on event loop thread: " + Context.isOnEventLoopThread());
-//                          System.out.println("Is on vertx thread: " + Context.isOnVertxThread());
-//                          System.out.println("Is on worker context: " + Context.isOnWorkerThread());
-//                          System.out.println("Completed hello on thread: " + Thread.currentThread().getName());
-//
-//                          rc.response().end(json.encode());
-//                      }, throwable -> rc.response().setStatusCode(500));
-//
-//
-//              //_vertx.<Stream<String>>executeBlocking(future -> {
-//              //    try {
-//              //        future.complete(_service.getData().get());
-//              //    } catch (InterruptedException e) {
-//              //        e.printStackTrace();
-//              //    } catch (ExecutionException e) {
-//              //        e.printStackTrace();
-//              //    }
-//              //}, result -> {
-//              //    System.out.println("Is on event loop thread: " + Context.isOnEventLoopThread());
-//              //    System.out.println("Is on vertx thread: " + Context.isOnVertxThread());
-//              //    System.out.println("Is on worker context: " + Context.isOnWorkerThread());
-//              //    System.out.println("Completed hello on thread: " + Thread.currentThread().getName());
-//              //
-//              //    rc.response().end(result.result().collect(JsonArray::new, JsonArray::add, JsonArray::addAll).encode());
-//              //});
-//          });
-//      });
-
-//
-//JsonObject authConfig = new JsonObject().put("keyStore", new JsonObject()
-//    .put("type", "jceks")
-//    .put("path", "keystore.jceks")
-//    .put("password", "secret"));
-//
-//JWTAuth authProvider = JWTAuth.create(vertx, authConfig);
-//
-//router.route("/*").handler(JWTAuthHandler.create(authProvider));
-
-//router.route("/")
-//      .produces("application/json")
-//      .handler(rc -> {
-//          System.out.println("auth request");
-//          rc.response().putHeader("WWW-Authenticate", "asas");
-//          rc.fail(401);
-//      });

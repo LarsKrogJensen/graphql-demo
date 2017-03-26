@@ -3,6 +3,7 @@ package se.lars
 import graphql.newGraphQL
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
+import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.User
 import io.vertx.ext.auth.jwt.impl.JWTUser
@@ -16,8 +17,12 @@ import se.lars.schema.ConsoleInstrumentation
 import se.lars.schema.marketDataSchema
 import java.nio.charset.Charset
 
-abstract class GraphQLHandlerBase(private val apiController: IApiController,
-                                  private val searchController: ISearchController) : Handler<RoutingContext> {
+abstract class GraphQLHandlerBase(
+        private val apiController: IApiController,
+        private val searchController: ISearchController,
+        private val eventBus: EventBus
+) : Handler<RoutingContext> {
+
     val log = loggerFor<GraphQLHandlerBase>()
     private val invalidUser = JWTUser(jsonObject(), "")
     private val cache = ApiControllerRequestScoop(apiController)
@@ -53,9 +58,10 @@ abstract class GraphQLHandlerBase(private val apiController: IApiController,
         val operation: String? = json.getString("operationName")
 
         val context = ApiRequestContext(user?.cast<JWTUser>() ?: invalidUser,
-//                                        ApiControllerRequestScoop(apiController),
+                //                                        ApiControllerRequestScoop(apiController),
                                         cache,
-                                        searchController)
+                                        searchController,
+                                        eventBus)
 
         graphQL.execute(query, operation, context, variables)
                 .thenOn(Vertx.currentContext())

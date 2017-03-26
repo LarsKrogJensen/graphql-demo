@@ -6,6 +6,10 @@ import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
+fun <T> T.complete(future: CompletableFuture<T>) {
+    future.complete(this)
+}
+
 fun <T> CompletionStage<T>.thenOn(context: Context): CompletionStage<T> {
     val future = CompletableFuture<T>()
     whenComplete { result, error ->

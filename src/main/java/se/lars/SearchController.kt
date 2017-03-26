@@ -7,7 +7,7 @@ import io.vertx.core.http.HttpClientOptions
 import io.vertx.core.http.HttpVersion
 import io.vertx.ext.auth.jwt.impl.JWTUser
 import org.slf4j.LoggerFactory
-import se.lars.auth.ApiUser
+import se.lars.kutil.complete
 import se.lars.kutil.documentOf
 import se.lars.kutil.matchOf
 import se.lars.types.SearchItem
@@ -64,8 +64,8 @@ constructor(vertx: Vertx) : ISearchController {
                                     .fold(mutableListOf<SearchItem>()) { list, item ->
                                         list.add(item)
                                         list
-                                    }.
-                                    complete(future)
+                                    }
+                                    .complete(future)
                         }
                     } else {
                         future.completeExceptionally(Exception(response.statusMessage()))
@@ -76,8 +76,4 @@ constructor(vertx: Vertx) : ISearchController {
     }
 }
 
-
-private fun <T> T.complete(future: CompletableFuture<T>) {
-    future.complete(this)
-}
 

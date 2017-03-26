@@ -1,22 +1,18 @@
 package se.lars
 
-import com.codahale.metrics.MetricRegistry
-
-import com.codahale.metrics.MetricSet
-import com.codahale.metrics.SharedMetricRegistries
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet
-import com.codahale.metrics.jvm.ThreadStatesGaugeSet
 import com.google.inject.Guice
 import io.vertx.config.ConfigRetriever
+import io.vertx.config.ConfigRetrieverOptions
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
+import io.vertx.core.cli.CLI
+import io.vertx.core.cli.CommandLine
+import io.vertx.core.cli.Option
+import io.vertx.core.json.JsonObject
 import io.vertx.ext.dropwizard.DropwizardMetricsOptions
 import io.vertx.kotlin.config.ConfigRetrieverOptions
 import io.vertx.kotlin.config.ConfigStoreOptions
-import metrics_influxdb.HttpInfluxdbProtocol
-import metrics_influxdb.InfluxdbReporter
 import se.lars.chat.ChatRoomVerticle
 import se.lars.codec.KryoCodec
 import se.lars.guice.GuiceVerticleFactory
@@ -24,38 +20,37 @@ import se.lars.guice.GuiceVertxDeploymentManager
 import se.lars.guice.VertxModule
 import se.lars.guice.deploy
 import se.lars.kutil.jsonObject
+import se.lars.kutil.shutdownHook
+import se.lars.services.MetricsVerticle
+import se.lars.services.SearchVerticle
 import java.net.URL
-import java.util.concurrent.TimeUnit
 
 fun main(args: Array<String>) {
+
     displayBanner()
-    System.setProperty("vertx.logger-delegate-factory-class-name",
-                       "io.vertx.core.logging.SLF4JLogDelegateFactory")
+    configureVertxLogging()
 
+    val commandLine = parseCommandLine(args)
+    val configStores = loadConfigStores(commandLine)
 
-    val vertxOptions = VertxOptions().apply {
+    val vertx = Vertx.vertx(VertxOptions().apply {
         metricsOptions = DropwizardMetricsOptions().apply {
             isJmxEnabled = true
             registryName = "Metrics"
         }
-    }
-    val vertx = Vertx.vertx(vertxOptions)
+    })
 
-    val options = ConfigRetrieverOptions(stores = listOf(
-            ConfigStoreOptions(type = "file", format = "yaml", config = jsonObject("path" to args[0])),
-            ConfigStoreOptions(type = "sys"),
-            ConfigStoreOptions(type = "env")
-    ))
-
-    ConfigRetriever.create(vertx, options).getConfig { result ->
+    ConfigRetriever.create(vertx, configStores).getConfig { result ->
         if (result.failed()) {
             throw RuntimeException("Failed to read config", result.cause())
         } else {
             val injector = Guice.createInjector(BootstrapModule(result.result()), VertxModule(vertx))
 
             vertx.registerVerticleFactory(GuiceVerticleFactory(injector))
-            KryoCodec.resolveKryoAwareClasses("se.lars.chat")
-                    .forEach { vertx.eventBus().registerDefaultCodec(it, KryoCodec(it)) }
+            KryoCodec.resolveKryoAwareClasses("se.lars.chat", "se.lars.messages")
+                    .forEach { clazz ->
+                        vertx.eventBus().registerDefaultCodec(clazz, KryoCodec(clazz))
+                    }
 
             val cores = Runtime.getRuntime().availableProcessors()
             val wsOptions = DeploymentOptions().setInstances(cores)
@@ -63,12 +58,51 @@ fun main(args: Array<String>) {
             GuiceVertxDeploymentManager(vertx).apply {
                 deploy<WebServerVerticle>(wsOptions)
                 deploy<ChatRoomVerticle>()
+                deploy<MetricsVerticle>()
+                deploy<SearchVerticle>()
             }
-            startReport(SharedMetricRegistries.getOrCreate("Metrics"))
+
+            shutdownHook { completion ->
+                vertx.close {
+                    completion.complete(Unit)
+                }
+
+            }
         }
     }
+}
 
+private fun loadConfigStores(commandLine: CommandLine): ConfigRetrieverOptions {
+    val config = commandLine.getOptionValue<String>("config")
 
+    val mainStore = if (config == null)
+        ConfigStoreOptions(type = "json", config = loadDefaultConfig())
+    else
+        ConfigStoreOptions(type = "file", format = "yaml", config = jsonObject("path" to config))
+
+    return ConfigRetrieverOptions(stores = listOf(
+            mainStore,
+            ConfigStoreOptions(type = "sys"),
+            ConfigStoreOptions(type = "env")
+    ))
+}
+
+private fun parseCommandLine(args: Array<String>): CommandLine {
+    return CLI.create("server").apply {
+        summary = "API Service"
+
+        addOption(Option().apply {
+            shortName = "c"
+            longName = "config"
+            description = "server config"
+            isRequired = false
+        })
+    }.parse(args.toList(), true)
+}
+
+private fun configureVertxLogging() {
+    System.setProperty("vertx.logger-delegate-factory-class-name",
+                       "io.vertx.core.logging.SLF4JLogDelegateFactory")
 }
 
 fun displayBanner() {
@@ -76,27 +110,8 @@ fun displayBanner() {
     println(resource.readText())
 }
 
-fun startReport(registry: MetricRegistry) {
-    registerAll("gc", GarbageCollectorMetricSet(), registry)
-    //registerAll("buffers", new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer()), registry);
-    registerAll("memory", MemoryUsageGaugeSet(), registry)
-    registerAll("threads", ThreadStatesGaugeSet(), registry)
-
-
-    InfluxdbReporter.forRegistry(registry)
-            .prefixedWith("lars")
-            .protocol(HttpInfluxdbProtocol("192.168.1.36"))
-            .tag("server", "server-1")
-            .build()
-            .start(1, TimeUnit.SECONDS)
+fun loadDefaultConfig(): JsonObject {
+    val resource: URL = ClassLoader.getSystemClassLoader().getResource("dev.json")
+    return JsonObject(resource.readText())
 }
 
-fun registerAll(prefix: String, metricSet: MetricSet, registry: MetricRegistry) {
-    for ((key, value) in metricSet.metrics) {
-        if (value is MetricSet) {
-            registerAll(prefix + "." + key, value, registry)
-        } else {
-            registry.register(prefix + "." + key, value)
-        }
-    }
-}
