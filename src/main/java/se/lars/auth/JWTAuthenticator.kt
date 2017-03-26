@@ -24,7 +24,8 @@ class JWTAuthenticator(private val api: IApiController, private val authProvider
                     val accessToken = json.getString("access_token")
                     if (accessToken != null) {
                         // put the backend token in the payload
-                        val jwtToken = authProvider.generateToken(jsonObject("sub" to accessToken), JWTOptions())
+                        val jwtToken = authProvider.generateToken(jsonObject("sub" to accessToken),
+                                                                  JWTOptions(jsonObject("expiresInMinutes" to 55)))
                         jwtJson.put("access_token", jwtToken)
 
                     } else {

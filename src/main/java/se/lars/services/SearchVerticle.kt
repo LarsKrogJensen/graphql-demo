@@ -14,7 +14,8 @@ import java.net.URLEncoder
 import javax.inject.Inject
 
 
-class SearchVerticle @Inject constructor(options: IServerOptions) : WebClientVericleBase(options) {
+class SearchVerticle @Inject constructor(options: IServerOptions ) : WebClientVericleBase(options) {
+
     private val log = loggerFor<SearchVerticle>()
     override fun start() {
         super.start()
@@ -41,7 +42,7 @@ class SearchVerticle @Inject constructor(options: IServerOptions) : WebClientVer
     }
 
     private fun parseResponse(buffer: Buffer): MutableList<SearchItem> {
-        val result = documentOf(buffer).find("DataRow")
+        return documentOf(buffer).find("DataRow")
                 .map(::matchOf)
                 .map { match ->
                     SearchItem(match.child("Id").content().removePrefix("Ts_"), //id
@@ -53,8 +54,6 @@ class SearchVerticle @Inject constructor(options: IServerOptions) : WebClientVer
                     list += item
                     list
                 }
-        log.info("Found ${result.size} matches")
-        return result
     }
 }
 

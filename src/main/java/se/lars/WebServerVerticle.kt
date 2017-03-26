@@ -67,8 +67,6 @@ constructor(
             route("/chat").handler(_chatHandler)
             route("/graphql").handler(_graphQLHandler)
             route("/graphqlws").handler(_graphQLHandlerWs)
-
-
             route("/*").handler(StaticHandler.create().setCachingEnabled(false))
         }
 
