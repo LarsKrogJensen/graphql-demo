@@ -6,8 +6,6 @@ import graphql.relay.*
 import graphql.schema.*
 import se.lars.kutil.sendWithReply
 import se.lars.kutil.succeeded
-import se.lars.kutil.succeededOptional
-import se.lars.kutil.succeededOptionalInt
 import se.lars.messages.SearchQuery
 import se.lars.messages.SearchResult
 import se.lars.types.*
@@ -23,14 +21,14 @@ private val sectorType = newObject {
         description = "Sector code"
         fetcher = { env ->
             val sector = env.source<Sector>()
-            succeeded(sector.code())
+            succeeded(sector.code)
         }
     }
     field<String> {
         name = "name"
         fetcher = { env ->
             val sector = env.source<Sector>()
-            succeeded(sector.description())
+            succeeded(sector.description)
         }
     }
 }
@@ -171,34 +169,34 @@ private val organizationType = newObject {
         name = "id"
         type = GraphQLNonNull(GraphQLString)
         fetcher = { env ->
-            succeeded(env.source<Organization>().id())
+            succeeded(env.source<Organization>().id)
         }
     }
     field<String> {
         name = "name"
         fetcher = { env ->
             val org = env.source<Organization>()
-            succeeded(org.name().orElse(null))
+            succeeded(org.name)
         }
     }
     field<String> {
         name = "countryCode"
         fetcher = { env ->
-            succeeded(env.source<Organization>().countryCode().orElse(null))
+            succeeded(env.source<Organization>().countryCode)
         }
     }
     field<Sector> {
         name = "industryClassification"
         type = sectorType
         fetcher = { env ->
-            succeeded(env.source<Organization>().industryClassification().orElse(null))
+            succeeded(env.source<Organization>().industryClassification)
         }
     }
     field<Sector> {
         name = "subIndustryClassification"
         type = sectorType
         fetcher = { env ->
-            succeeded(env.source<Organization>().industryClassification().orElse(null))
+            succeeded(env.source<Organization>().subIndustryClassification)
         }
     }
     field<Listing> {
@@ -206,9 +204,9 @@ private val organizationType = newObject {
         type = GraphQLTypeReference("Listing") // required as we have circular references
         fetcher = { env ->
             val org = env.source<Organization>()
-            if (org.mostLiquidEquity().isPresent) {
+            if (org.mostLiquidEquity != null) {
                 val context = env.context<ApiRequestContext>()
-                context.apiController.listing(org.mostLiquidEquity().get().id(), context.user)
+                context.apiController.listing(org.mostLiquidEquity.id, context.user)
             } else
                 succeeded(null)
         }
@@ -223,43 +221,43 @@ private val listingType = newObject {
         name = "id"
         type = GraphQLNonNull(GraphQLString)
         fetcher = { env ->
-            succeeded(env.source<Listing>().id())
+            succeeded(env.source<Listing>().id)
         }
     }
     field<String> {
         name = "name"
         fetcher = { env ->
-            succeededOptional(env.source<Listing>().name())
+            succeeded(env.source<Listing>().name)
         }
     }
     field<String> {
         name = "longName"
         fetcher = { env ->
-            succeededOptional(env.source<Listing>().longName())
+            succeeded(env.source<Listing>().longName)
         }
     }
     field<String> {
         name = "currencyCode"
         fetcher = { env ->
-            succeededOptional(env.source<Listing>().currencyCode())
+            succeeded(env.source<Listing>().currencyCode)
         }
     }
     field<String> {
         name = "type"
         fetcher = { env ->
-            succeededOptional(env.source<Listing>().type())
+            succeeded(env.source<Listing>().type)
         }
     }
     field<Int> {
         name = "roundLot"
         fetcher = { env ->
-            succeededOptionalInt(env.source<Listing>().roundLot())
+            succeeded(env.source<Listing>().roundLot)
         }
     }
     field<Date> {
         name = "listingDate"
         fetcher = { env ->
-            succeededOptional(env.source<Listing>().listingDate())
+            succeeded(env.source<Listing>().listingDate)
         }
     }
     field<Quotes> {
@@ -268,7 +266,7 @@ private val listingType = newObject {
         fetcher = { env ->
             val listing = env.source<Listing>()
             val context = env.context<ApiRequestContext>()
-            context.apiController.listingQuotes(listing.id(), context.user)
+            context.apiController.listingQuotes(listing.id, context.user)
         }
     }
     field<OrderBook> {
@@ -277,7 +275,7 @@ private val listingType = newObject {
         fetcher = { env ->
             val listing = env.source<Listing>()
             val context = env.context<ApiRequestContext>()
-            context.apiController.listingOrderBook(listing.id(), context.user)
+            context.apiController.listingOrderBook(listing.id, context.user)
         }
     }
     field<Organization> {
@@ -286,8 +284,8 @@ private val listingType = newObject {
         fetcher = { env ->
             val listing = env.source<Listing>()
             val context = env.context<ApiRequestContext>()
-            if (listing.issuer.isPresent)
-                context.apiController.organization(listing.issuer.get().id(), context.user)
+            if (listing.issuer != null)
+                context.apiController.organization(listing.issuer.id, context.user)
             else
                 succeeded(null)
         }
