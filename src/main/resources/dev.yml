@@ -1,3 +1,5 @@
 http:
-    port: 8180
+    port: 8080
     useSsl: false
+metrics:
+    enable: true

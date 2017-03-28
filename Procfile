@@ -1,1 +1,1 @@
-web:    java -jar target/vertx.demo.jar
+web:    java -jar target/graphql-demo.jar
