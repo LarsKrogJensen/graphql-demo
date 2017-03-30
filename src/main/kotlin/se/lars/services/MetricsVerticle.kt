@@ -32,11 +32,12 @@ class MetricsVerticle @Inject constructor(val options: IServerOptions) : Abstrac
 
             val scheduledReporter = InfluxdbReporter.forRegistry(registry)
                     .prefixedWith("lars")
+//                    .convertRatesTo()
                     .protocol(HttpInfluxdbProtocol("192.168.1.36"))
                     .tag("server", "server-1")
                     .build()
 
-            scheduledReporter.start(1, TimeUnit.SECONDS)
+            scheduledReporter.start(10, TimeUnit.SECONDS)
         }
     }
 
