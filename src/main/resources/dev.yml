@@ -2,4 +2,4 @@ http:
     port: 8080
     useSsl: false
 metrics:
-    enable: true
+    enable: false

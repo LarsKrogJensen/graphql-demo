@@ -18,16 +18,19 @@ import se.lars.kutil.jsonObject
 import se.lars.kutil.loggerFor
 import se.lars.kutil.router
 import javax.inject.Inject
+import javax.inject.Named
 
 
 class WebServerVerticle
 @Inject
 constructor(
-        private val _serverOptions: IServerOptions,
-        private val _graphQLHandler: GraphQLHandler,
-        private val _graphQLHandlerWs: GraphQLHandlerOverWS,
-        private val _chatHandler: ChatSystemHandler,
-        private val _apiController: IApiController) : AbstractVerticle() {
+        private val serverOptions: IServerOptions,
+        private val graphQLHandler: GraphQLHandler,
+        @Named("mock")
+        private val mockGraphQLHandler: GraphQLHandler,
+        private val graphQLHandlerWs: GraphQLHandlerOverWS,
+        private val chatHandler: ChatSystemHandler,
+        private val apiController: IApiController) : AbstractVerticle() {
 
     private val _log = loggerFor<WebServerVerticle>()
     private lateinit var httpServer: HttpServer
@@ -35,7 +38,7 @@ constructor(
     override fun start(startFuture: Future<Void>) {
         val options = HttpServerOptions().apply {
             isCompressionSupported = true
-            if (_serverOptions.useSsl) {
+            if (serverOptions.useSsl) {
                 isUseAlpn = true
                 isSsl = true
                 pemKeyCertOptions = PemKeyCertOptions().apply {
@@ -62,17 +65,18 @@ constructor(
             route().handler(AccessLogHandler.create("%r %s \"%{Content-Type}o\" %D %T %B"))
             route().handler(corsHandler)
             route().handler(BodyHandler.create())
-            route("/authenticate").handler(JWTAuthenticator(_apiController, provider))
+            route("/authenticate").handler(JWTAuthenticator(apiController, provider))
             route("/graphql*").handler(JWTAuthHandler.create(provider))
-            route("/chat").handler(_chatHandler)
-            route("/graphql").handler(_graphQLHandler)
-            route("/graphqlws").handler(_graphQLHandlerWs)
+            route("/chat").handler(chatHandler)
+            route("/graphql").handler(graphQLHandler)
+            route("/graphqlws").handler(graphQLHandlerWs)
+            route("/mockedql").handler(mockGraphQLHandler)
             route("/*").handler(StaticHandler.create().setCachingEnabled(false))
         }
 
         httpServer = vertx.createHttpServer(options)
                 .requestHandler { router.accept(it) }
-                .listen(_serverOptions.httpPort) {
+                .listen(serverOptions.httpPort) {
                     when (it.succeeded()) {
                         true  -> {
                             _log.info("Http service started. on port " + it.result().actualPort())

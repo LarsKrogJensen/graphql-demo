@@ -11,7 +11,6 @@ constructor(
         apiController: IApiController,
         searchController: ISearchController,
         eventBus: EventBus
-
 ) : GraphQLHandlerBase(apiController, searchController, eventBus) {
 
 

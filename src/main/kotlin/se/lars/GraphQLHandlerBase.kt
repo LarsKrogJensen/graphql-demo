@@ -19,7 +19,7 @@ import se.lars.schema.marketDataSchema
 import java.nio.charset.Charset
 
 abstract class GraphQLHandlerBase(
-        private val apiController: IApiController,
+        apiController: IApiController,
         private val searchController: ISearchController,
         private val eventBus: EventBus
 ) : Handler<RoutingContext> {

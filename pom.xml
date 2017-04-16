@@ -369,7 +369,7 @@
                 <configuration>
                     <appName>larskj-gql</appName>
                     <processTypes>
-                        <web>java $JAVA_OPTS -jar target/vertx.demo.jar</web>
+                        <web>java $JAVA_OPTS -jar target/graphql-demo.jar</web>
                     </processTypes>
                 </configuration>
             </plugin>

@@ -44,7 +44,7 @@ fun main(args: Array<String>) {
         if (result.failed()) {
             throw RuntimeException("Failed to read config", result.cause())
         } else {
-            val injector = Guice.createInjector(BootstrapModule(result.result()), VertxModule(vertx))
+            val injector = Guice.createInjector(BootstrapModule(result.result(), vertx.eventBus()), VertxModule(vertx))
 
             vertx.registerVerticleFactory(GuiceVerticleFactory(injector))
             KryoCodec.resolveKryoAwareClasses("se.lars.chat", "se.lars.messages")
