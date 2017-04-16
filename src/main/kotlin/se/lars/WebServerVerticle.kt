@@ -70,7 +70,7 @@ constructor(
             route("/chat").handler(chatHandler)
             route("/graphql").handler(graphQLHandler)
             route("/graphqlws").handler(graphQLHandlerWs)
-            route("/mockedql").handler(mockGraphQLHandler)
+            route("/mockql").handler(mockGraphQLHandler)
             route("/*").handler(StaticHandler.create().setCachingEnabled(false))
         }
 
