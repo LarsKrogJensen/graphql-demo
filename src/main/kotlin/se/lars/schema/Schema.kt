@@ -9,7 +9,6 @@ import se.lars.kutil.succeeded
 import se.lars.messages.SearchQuery
 import se.lars.messages.SearchResult
 import se.lars.types.*
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -215,7 +214,6 @@ private val organizationType = newObject {
 
 }
 
-
 private val listingType = newObject {
     name = "Listing"
     field<String> {
@@ -346,6 +344,45 @@ private val personType = newObject {
     }
 }
 
+private val timeEvent = newObject {
+    name = "TimeEvent"
+    field<Int> {
+        name = "year"
+        fetcher = { env ->
+            succeeded(env.source<TimeEvent>().year)
+        }
+    }
+    field<Int> {
+        name = "month"
+        fetcher = { env ->
+            succeeded(env.source<TimeEvent>().month)
+        }
+    }
+    field<Int> {
+        name = "day"
+        fetcher = { env ->
+            succeeded(env.source<TimeEvent>().day)
+        }
+    }
+    field<Int> {
+        name = "hour"
+        fetcher = { env ->
+            succeeded(env.source<TimeEvent>().hour)
+        }
+    }
+    field<Int> {
+        name = "minute"
+        fetcher = { env ->
+            succeeded(env.source<TimeEvent>().minute)
+        }
+    }
+    field<Int> {
+        name = "second"
+        fetcher = { env ->
+            succeeded(env.source<TimeEvent>().seond)
+        }
+    }
+}
 // Queries
 private val listingQuery = newField<Listing> {
     name = "listing"
@@ -481,11 +518,11 @@ val marketDataSchema = newSchema {
     }
     subscription = newObject {
         name = "SubsciptionType"
-        field<String> {
+        field<TimeEvent> {
             name = "currentTime"
+            type = timeEvent
             fetcher {
-                val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                succeeded(fmt.format(Date()))
+                succeeded(TimeEvent())
             }
         }
     }
