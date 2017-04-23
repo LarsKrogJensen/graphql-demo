@@ -9,6 +9,7 @@ import se.lars.kutil.succeeded
 import se.lars.messages.SearchQuery
 import se.lars.messages.SearchResult
 import se.lars.types.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -477,6 +478,16 @@ val marketDataSchema = newSchema {
         name = "MutationType"
         field(addPersonMutation)
         field(removePersonMutation)
+    }
+    subscription = newObject {
+        name = "SubsciptionType"
+        field<String> {
+            name = "currentTime"
+            fetcher {
+                val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                succeeded(fmt.format(Date()))
+            }
+        }
     }
 
 }
