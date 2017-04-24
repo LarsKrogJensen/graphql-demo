@@ -22,6 +22,7 @@ class BootstrapModule(private val config: JsonObject, private val eventBus: Even
         bind<GraphQLHandler>()
         bind<GraphQLHandler>().annotatedWith(named("mock")).toInstance(GraphQLHandler(MockApiController(),MockSearchController(), eventBus))
         bind<GraphQLHandlerOverWS>()
+        bind<GraphQLHandlerOverWS>().annotatedWith(named("mock")).toInstance(GraphQLHandlerOverWS(MockApiController(), MockSearchController(), eventBus))
         bind<ChatSystemHandler>().asSingleton()
         bind<MetricsVerticle>().asEagerSingleton()
     }

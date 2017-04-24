@@ -29,6 +29,8 @@ constructor(
         @Named("mock")
         private val mockGraphQLHandler: GraphQLHandler,
         private val graphQLHandlerWs: GraphQLHandlerOverWS,
+        @Named("mock")
+        private val mockQLHandlerWs: GraphQLHandlerOverWS,
         private val chatHandler: ChatSystemHandler,
         private val apiController: IApiController) : AbstractVerticle() {
 
@@ -71,6 +73,7 @@ constructor(
             route("/graphql").handler(graphQLHandler)
             route("/graphqlws").handler(graphQLHandlerWs)
             route("/mockql").handler(mockGraphQLHandler)
+            route("/mockqlws").handler(mockQLHandlerWs)
             route("/*").handler(StaticHandler.create().setCachingEnabled(false))
         }
 
