@@ -6,13 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.guava.GuavaModule
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND
-import io.netty.handler.codec.http.HttpResponseStatus.OK
 import io.vertx.core.Vertx
-import io.vertx.core.http.HttpClient
-import io.vertx.core.http.HttpClientOptions
 import io.vertx.core.http.HttpVersion
+import io.vertx.core.impl.NoStackTraceThrowable
 import io.vertx.ext.auth.jwt.impl.JWTUser
+import io.vertx.ext.web.client.WebClient
+import io.vertx.ext.web.client.WebClientOptions
 import org.slf4j.LoggerFactory
 import se.lars.auth.ApiUser
 import se.lars.kutil.jsonObject
@@ -26,18 +25,17 @@ import javax.inject.Inject
 class ApiController
 @Inject
 constructor(_vertx: Vertx) : IApiController {
-    private val _log = LoggerFactory.getLogger(ApiController::class.java)
-    private val _httpClient: HttpClient
-    private val _mapper: ObjectMapper
+    private val log = LoggerFactory.getLogger(ApiController::class.java)
+    private val httpClient: WebClient
+    private val mapper: ObjectMapper
 
     init {
 
         // Prepare http client options to run HTTP/2
-        val options = HttpClientOptions().apply {
+        val options = WebClientOptions().apply {
             protocolVersion = HttpVersion.HTTP_2
             isSsl = true
             isUseAlpn = true
-            isTrustAll = true
             defaultHost = "api.six.se"
             defaultPort = 443
             logActivity = false
@@ -45,10 +43,10 @@ constructor(_vertx: Vertx) : IApiController {
         }
 
         // Http client is thread safe an a single instance is sufficent
-        _httpClient = _vertx.createHttpClient(options)
+        httpClient = WebClient.create(_vertx, options)
 
         // Create a json deserializer and hint it to ingore unknown properties
-        _mapper = ObjectMapper().apply {
+        mapper = ObjectMapper().apply {
             registerModule(GuavaModule())
             registerModule(Jdk8Module())
             registerModule(KotlinModule())
@@ -79,55 +77,60 @@ constructor(_vertx: Vertx) : IApiController {
         val requestBody = jsonObject("client_id" to clientId,
                                      "client_secret" to clientSecret).encode()
 
-        _log.info("Authenticating {}:{}", clientId, clientSecret)
+        log.info("Authenticating {}:{}", clientId, clientSecret)
 
-        _httpClient.post("/v2/authorization/token")
-                .exceptionHandler { future.completeExceptionally(it) }
-                .handler { response ->
-                    response.bodyHandler { buffer ->
-                        future.complete(ApiUser(buffer.toJsonObject()))
+        httpClient.post("/v2/authorization/token")
+            .sendJson(requestBody) { reply ->
+                if (reply.succeeded()) {
+                    val response = reply.result()
+                    if (response.statusCode() == 200) {
+                        log.info("Response protocol ${response.version()}")
+                        future.complete(ApiUser(response.body().toJsonObject()))
+                    } else {
+                        future.completeExceptionally(NoStackTraceThrowable("Invalid resp code ${response.statusCode()}"))
                     }
+                } else {
+                    future.completeExceptionally(reply.cause())
                 }
-                .putHeader("Content-Length", Integer.toString(requestBody.length))
-                .putHeader("Content-Type", "application/json")
-                .write(requestBody)
-                .end()
+
+            }
 
         return future
     }
-
 
     private fun <T> invokeQuery(query: String, type: Class<T>, user: JWTUser): CompletableFuture<T> {
         val future = CompletableFuture<T>()
 
         val authHeader = "Bearer ${user.principal().getString("sub")}"
 
-        _log.info("Query: https://api.six.se$query")
+        log.info("Query: https://api.six.se$query")
 
-        _httpClient.get(query)
-                .setTimeout(2000)
-                .putHeader("authorization", authHeader)
-                .exceptionHandler { ex -> future.completeExceptionally(ex) }
-                .handler { response ->
-                    if (response.statusCode() == OK.code()) {
-                        response.bodyHandler { buffer ->
-                            try {
-                                val typeObj = _mapper.readValue(buffer.bytes, type)
-                                future.complete(typeObj)
-                            } catch(e: Exception) {
-                                _log.error("Failed to invoke https://api.six.se$query", e)
-                                future.completeExceptionally(e)
-                            }
+        httpClient.get(query)
+            .timeout(2000)
+            .putHeader("authorization", authHeader)
+            .send { reply ->
+                if (reply.succeeded()) {
+                    val response = reply.result()
+                    if (response.statusCode() == 200) {
+
+                        log.info("Response protocol ${response.version()}")
+                        try {
+                            val typeObj = mapper.readValue(response.body().bytes, type)
+                            future.complete(typeObj)
+                        } catch (e: Exception) {
+                            log.error("Failed to invoke https://api.six.se$query", e)
+                            future.completeExceptionally(e)
                         }
-                        response.exceptionHandler { e -> future.completeExceptionally(e) }
-                    } else if (response.statusCode() == NOT_FOUND.code()) {
-                        _log.warn("Not found: https://api.six.se$query")
-                        future.complete(null)
                     } else {
-                        _log.error("Failed to invoke https://api.six.se$query status code ${response.statusCode()}")
-                        future.completeExceptionally(Exception(response.statusMessage()))
+                        log.warn("Not found: https://api.six.se$query")
+                        future.complete(null)
                     }
-                }.end()
+
+                } else {
+                    log.error("Failed to invoke https://api.six.se$query ${reply.cause().message}")
+                    future.completeExceptionally(reply.cause())
+                }
+            }
         return future
     }
 }

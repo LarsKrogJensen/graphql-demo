@@ -14,7 +14,7 @@ import java.net.URLEncoder
 import javax.inject.Inject
 
 
-class SearchVerticle @Inject constructor(options: IServerOptions ) : WebClientVericleBase(options) {
+class SearchVerticle @Inject constructor(options: IServerOptions) : WebClientVericleBase(options) {
 
     private val log = loggerFor<SearchVerticle>()
     override fun start() {
@@ -28,32 +28,34 @@ class SearchVerticle @Inject constructor(options: IServerOptions ) : WebClientVe
         log.info("Query: $requestURI")
 
         httpClient.get(requestURI)
-                .setTimeout(2000)
-                .exceptionHandler { ex -> msg.fail(0, ex.message) }
-                .handler { response ->
+            .send { getReply ->
+                if (getReply.succeeded()) {
+                    val response = getReply.result()
+                    log.info("Response protocol ${response.version()}")
                     if (response.statusCode() == HttpResponseStatus.OK.code()) {
-                        response.bodyHandler { buffer ->
-                            msg.reply(SearchResult(parseResponse(buffer)))
-                        }
+                        msg.reply(SearchResult(parseResponse(response.body())))
                     } else {
                         msg.fail(0, response.statusMessage())
                     }
-                }.end()
+                } else {
+                    msg.fail(0, getReply.cause().message)
+                }
+            }
     }
 
     private fun parseResponse(buffer: Buffer): MutableList<SearchItem> {
         return documentOf(buffer).find("DataRow")
-                .map(::matchOf)
-                .map { match ->
-                    SearchItem(match.child("Id").content().removePrefix("Ts_"), //id
-                               match.child("Score").content().toFloat(), //score
-                               match.child("Nms").content(), //name
-                               match.child("Nm").content()) // longName
-                }
-                .fold(mutableListOf<SearchItem>()) { list, item ->
-                    list += item
-                    list
-                }
+            .map(::matchOf)
+            .map { match ->
+                SearchItem(match.child("Id").content().removePrefix("Ts_"), //id
+                           match.child("Score").content().toFloat(), //score
+                           match.child("Nms").content(), //name
+                           match.child("Nm").content()) // longName
+            }
+            .fold(mutableListOf()) { list, item ->
+                list += item
+                list
+            }
     }
 }
 
