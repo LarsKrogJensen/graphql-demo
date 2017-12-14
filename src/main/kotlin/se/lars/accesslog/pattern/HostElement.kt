@@ -11,7 +11,6 @@ class HostElement private constructor(private val mode: Mode) : AccessLogElement
         Mode.LOCAL_HOST  -> values.localHost
         Mode.LOCAL_PORT  -> values.localPort.toString()
         Mode.REMOTE_HOST -> values.remoteHost
-        else             -> "-"
     }
 
     companion object {

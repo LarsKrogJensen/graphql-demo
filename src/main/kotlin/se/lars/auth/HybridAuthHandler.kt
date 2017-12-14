@@ -1,5 +1,7 @@
 package se.lars.auth
 
+import io.vertx.core.AsyncResult
+import io.vertx.core.Handler
 import io.vertx.core.http.HttpHeaders
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.AuthProvider
@@ -9,7 +11,10 @@ import io.vertx.ext.web.handler.impl.AuthHandlerImpl
 import se.lars.kutil.jsonObject
 import java.util.*
 
-class HybridAuthHandler(authProvider: AuthProvider, private val realm: String) : AuthHandlerImpl(authProvider) {
+class HybridAuthHandler(authProvider: AuthProvider, private val realm2: String) : AuthHandlerImpl(authProvider) {
+    override fun parseCredentials(context: RoutingContext?, handler: Handler<AsyncResult<JsonObject>>?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     override fun handle(context: RoutingContext) {
 //        context.setUser(ApiUser(JsonObject()))
@@ -110,7 +115,7 @@ class HybridAuthHandler(authProvider: AuthProvider, private val realm: String) :
     }
 
     private fun handle401(context: RoutingContext) {
-        context.response().putHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"")
+        context.response().putHeader("WWW-Authenticate", "Basic realm=\"" + this.realm2 + "\"")
         context.fail(401)
     }
 

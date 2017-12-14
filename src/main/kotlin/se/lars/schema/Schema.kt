@@ -516,15 +516,6 @@ val marketDataSchema = newSchema {
         field(addPersonMutation)
         field(removePersonMutation)
     }
-    subscription = newObject {
-        name = "SubsciptionType"
-        field<TimeEvent> {
-            name = "currentTime"
-            type = timeEvent
-            fetcher {
-                succeeded(TimeEvent())
-            }
-        }
-    }
+    
 
 }

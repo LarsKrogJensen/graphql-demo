@@ -51,10 +51,10 @@ constructor(
         }
 
         // configure cross domain access
-        val corsHandler = with(CorsHandler.create("*")) {
+        val corsHandler = with(CorsHandler.create("http://localhost:3000")) {
             allowCredentials(true)
             allowedMethod(HttpMethod.POST)
-            allowedHeaders(setOf("content-type", "authorization"))
+            allowedHeaders(setOf("Content-Type", "Authorization"))
         }
 
         val keystoreConfig = jsonObject("keyStore" to jsonObject("path" to "keystore.jceks",

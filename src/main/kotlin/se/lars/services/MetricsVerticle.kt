@@ -20,7 +20,9 @@ class MetricsVerticle @Inject constructor(val options: IServerOptions) : Abstrac
     private var scheduledReporter: ScheduledReporter? = null
 
 
+
     override fun start() {
+
         log.info("Metrics service started, reporter is ${options.enableMetrics}")
         if (options.enableMetrics) {
             val registry = SharedMetricRegistries.getOrCreate("Metrics")
@@ -54,6 +56,7 @@ class MetricsVerticle @Inject constructor(val options: IServerOptions) : Abstrac
                 registry.register(prefix + "." + key, value)
             }
         }
+
     }
 
 }

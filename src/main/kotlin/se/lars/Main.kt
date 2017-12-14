@@ -15,6 +15,7 @@ import io.vertx.kotlin.config.ConfigRetrieverOptions
 import io.vertx.kotlin.config.ConfigStoreOptions
 import se.lars.chat.ChatRoomVerticle
 import se.lars.codec.KryoCodec
+import se.lars.codec.NoOpCodec
 import se.lars.guice.GuiceVerticleFactory
 import se.lars.guice.GuiceVertxDeploymentManager
 import se.lars.guice.VertxModule
@@ -49,7 +50,8 @@ fun main(args: Array<String>) {
             vertx.registerVerticleFactory(GuiceVerticleFactory(injector))
             KryoCodec.resolveKryoAwareClasses("se.lars.chat", "se.lars.messages")
                     .forEach { clazz ->
-                        vertx.eventBus().registerDefaultCodec(clazz, KryoCodec(clazz))
+                        vertx.eventBus().registerDefaultCodec(clazz, NoOpCodec(clazz))
+//                        vertx.eventBus().registerDefaultCodec(clazz, KryoCodec(clazz))
                     }
 
             val cores = Runtime.getRuntime().availableProcessors()
